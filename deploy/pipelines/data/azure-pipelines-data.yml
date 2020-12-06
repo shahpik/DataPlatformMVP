@@ -1,0 +1,99 @@
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - README.md
+
+variables:
+
+  system.debug: true
+  organisationCode: cob
+  region: australiasoutheast
+  regionCode: ause
+  containerName: default
+  projectCode: datamvp 
+  rg: rg-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  dataLakeStorage: dlst$(organisationCode)$(environmentCode)$(regionCode)
+  sqlDWServer: sql-srv-$(organisationCode)-$(environmentCode)-$(regionCode)
+  sqlDWServerAdmin: adminsqldwnpe
+  sqlDWServerAdminPass: $(AZURESQLPASSWORD)
+  sqlDW: sql-$(organisationCode)-$(environmentCode)-$(regionCode)
+  dataFactory: df-$(organisationCode)-$(environmentCode)-$(regionCode)
+  logAnalyticsWorkspace: log-$(organisationCode)-$(environmentCode)-$(regionCode)
+  cobsalogStorageAccount: salog$(organisationCode)$(environmentCode)$(regionCode)
+  cobsaStorageAccount: sa$(organisationCode)$(environmentCode)$(regionCode)
+
+  databricksWorkspace: dbr-$(organisationCode)-$(environmentCode)-$(regionCode)
+  databricksVNet: vnet-dbr-$(organisationCode)-$(environmentCode)-$(regionCode)
+  databricksVNetAddressPrefixes: 10.225.17.0/25
+  databricksNSG: nsgdbr$(organisationCode)$(environmentCode)$(regionCode)
+  databricksPrivateSNet: snet-dbr-pub-$(organisationCode)-$(environmentCode)-$(regionCode)
+  databricksPrivateSNetAddressPrefixes: 10.225.17.64/26
+  databricksPublicSNet: snet-dbr-priv-$(organisationCode)-$(environmentCode)-$(regionCode)
+  databricksPublicSNetAddressPrefixes: 10.225.17.0/26
+  analysisService: analysisservice$(organisationCode)$(environmentCode)$(regionCode)
+
+
+stages:
+
+  - stage: Build
+    displayName: Build Artefacts
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: deployment
+              artifact: deployment
+
+  - stage: DeployTotst
+    displayName: Deploy Test Environment
+    dependsOn: Build
+    condition: succeeded('Build')
+    variables:
+      environmentCode: tst
+    jobs:
+      - deployment: CreateDataResources
+        displayName: Create Data Resources
+        pool:
+          vmImage: ubuntu-latest
+        environment: Test
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: Create Resource Group
+                  inputs:
+                    azureSubscription: DataPlatformMVP-ServiceConnection
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Resource Group"
+                      az group create \
+                          --name "$(rg)" \
+                          --location "$(region)"
+
+         
+                        
+                - task: AzureCLI@2
+                  displayName: Create Azure Data Factory
+                  inputs:
+                    azureSubscription: DataPlatformMVP-ServiceConnection
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: >
+                      echo "Setting Dynamic install without prompt"
+                      az config set
+                      extension.use_dynamic_install=yes_without_prompt
+
+                      echo "Creating Azure Data Factory '$(dataFactory)'"
+                      az datafactory factory create \
+                        --location "$(region)" \
+                        --resource-group "$(rg)" \
+                        --name "$(dataFactory)"
