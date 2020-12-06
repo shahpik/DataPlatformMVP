@@ -70,7 +70,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: Create Resource Group
                   inputs:
-                    azureSubscription: DataPlatformMVP-ServiceConnection
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
@@ -84,7 +84,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: Create Azure Data Factory
                   inputs:
-                    azureSubscription: DataPlatformMVP-ServiceConnection
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: >
