@@ -135,8 +135,7 @@ stages:
                       scriptLocation: scriptPath
                       scriptPath: '$(Pipeline.Workspace)/deploy/scripts/create-databricks-nsg-rules.sh'
                       arguments: |
-                        --nsg-name $(databricksNSG) \
-                        --resource-group $(rg) 
+                        --nsg-name $(databricksNSG) --resource-group $(rg) 
 
                 - task: AzureCLI@2
                   displayName: Create Azure Data Factory
