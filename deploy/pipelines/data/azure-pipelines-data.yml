@@ -18,11 +18,14 @@ variables:
   dataFactory: df-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
   logAnalyticsWorkspace: log-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
 
-  dataLakeStorage: dlst$(organisationCode)$(environmentCode)$(regionCode)
-  sqlDWServer: sql-srv-$(organisationCode)-$(environmentCode)-$(regionCode)
+  sqlDWServer: sql-srv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
   sqlDWServerAdmin: adminsqldwnpe
   sqlDWServerAdminPass: $(AZURESQLPASSWORD)
-  sqlDW: sql-$(organisationCode)-$(environmentCode)-$(regionCode)
+  sqlDB: sqldb-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  sqlDW: sql-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  
+  dataLakeStorage: dlst$(organisationCode)$(environmentCode)$(regionCode)  
+  
   cobsalogStorageAccount: salog$(organisationCode)$(environmentCode)$(regionCode)
   cobsaStorageAccount: sa$(organisationCode)$(environmentCode)$(regionCode)
 
@@ -93,3 +96,24 @@ stages:
                             --name "AzureDataFactory" \
                             --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
                             --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace)
+
+                - task: AzureCLI@2
+                  displayName: Create SQL Server
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating SQL Server '$(sqlDWServer)'"
+                      az sql server create \
+                        --resource-group "$(rg)" \
+                        --name "$(sqlDWServer)" \
+                        --admin-password "$(sqlDWServerAdminPass)" \
+                        --admin-user "$(sqlDWServerAdmin)"
+
+                      echo "Creating SQL DB"
+                      az sql db create -g $(rg) -s $(sqlDWServer) -n $(sqlDB) --service-objective S0
+
+                      echo "Update SQL DB for Log Analytics"
+                      az sql db audit-policy update -g $(rg) -s $(sqlDWServer) -n $(sqlDB) --state Enabled \
+                        --lats Enabled --lawri $(logAnalyticsWorkspace)
