@@ -13,15 +13,16 @@ variables:
   region: australiasoutheast
   regionCode: ause
   containerName: default
-  projectCode: datamvp 
+  projectCode: datamvp
   rg: rg-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  dataFactory: df-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  logAnalyticsWorkspace: log-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+
   dataLakeStorage: dlst$(organisationCode)$(environmentCode)$(regionCode)
   sqlDWServer: sql-srv-$(organisationCode)-$(environmentCode)-$(regionCode)
   sqlDWServerAdmin: adminsqldwnpe
   sqlDWServerAdminPass: $(AZURESQLPASSWORD)
   sqlDW: sql-$(organisationCode)-$(environmentCode)-$(regionCode)
-  dataFactory: df-$(organisationCode)-$(environmentCode)-$(regionCode)
-  logAnalyticsWorkspace: log-$(organisationCode)-$(environmentCode)-$(regionCode)
   cobsalogStorageAccount: salog$(organisationCode)$(environmentCode)$(regionCode)
   cobsaStorageAccount: sa$(organisationCode)$(environmentCode)$(regionCode)
 
@@ -51,7 +52,7 @@ stages:
               targetPath: deploy
               artifact: deploy
 
-  - stage: DeployTotst
+  - stage: DeployToTest
     displayName: Deploy Test Environment
     dependsOn: Build
     condition: succeeded('Build')
