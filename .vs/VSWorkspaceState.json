@@ -3,6 +3,7 @@
     "",
     "\\deploy",
     "\\deploy\\arm",
+    "\\deploy\\arm\\Microsoft.Databricks",
     "\\deploy\\arm\\Microsoft.DataFactory",
     "\\deploy\\arm\\Microsoft.OperationalInsights",
     "\\deploy\\pipelines",

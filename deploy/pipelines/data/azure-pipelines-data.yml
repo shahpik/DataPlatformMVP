@@ -86,6 +86,59 @@ stages:
                           --location "$(region)"
 
                 - task: AzureCLI@2
+                  displayName: 'Create Databricks'
+                  inputs:
+                      azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                      scriptType: 'bash'
+                      scriptLocation: 'inlineScript'
+                      inlineScript: |
+                        echo "Creating Databricks workspace '$(databricksWorkspace)'"
+                        az deployment group create \
+                          --resource-group "$(rg)" \
+                          --name "Databricks" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
+                          --parameters "workspaceName=$(databricksWorkspace)"
+
+                        echo "Creating Databricks VNet"
+                        az network vnet create \
+                            --name $(databricksVNet) \
+                            --resource-group $(rg) \
+                            --location $(region) \
+                            --address-prefixes $(databricksVNetAddressPrefixes) 
+
+                        echo "Creating Databricks NSG"
+                        az network nsg create \
+                            --name $(databricksNSG) \
+                            --resource-group $(rg) \
+
+                        echo "Creating Databricks Private Subnet"
+                        az network vnet subnet create \
+                            --name $(databricksPrivateSNet) \
+                            --resource-group $(rg) \
+                            --address-prefixes $(databricksPrivateSNetAddressPrefixes) \
+                            --network-security-group $(databricksNSG) \
+                            --vnet-name $(databricksVNet)
+
+                        echo "Creating Databricks Public Subnet"
+                        az network vnet subnet create \
+                            --name $(databricksPublicSNet) \
+                            --resource-group $(rg) \
+                            --address-prefixes $(databricksPublicSNetAddressPrefixes) \
+                            --network-security-group $(databricksNSG) \
+                            --vnet-name $(databricksVNet)
+
+                - task: AzureCLI@2
+                  displayName: 'Create Databricks NSG Rules'
+                  inputs:
+                      azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                      scriptType: bash
+                      scriptLocation: scriptPath
+                      scriptPath: '$(Pipeline.Workspace)/deploy/scripts/create-databricks-nsg-rules.sh'
+                      arguments: |
+                        --nsg-name $(databricksNSG) \
+                        --resource-group $(rg) 
+
+                - task: AzureCLI@2
                   displayName: Create Azure Data Factory
                   inputs:
                     azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
@@ -149,58 +202,3 @@ stages:
 
                       echo "Creating Event Hub"
                       az eventhubs eventhub create --name $(eventHubName) --resource-group $(rg) --namespace-name $(eventHubNameSpace)
-
-
-
-                - task: AzureCLI@2
-                  displayName: 'Create Databricks'
-                  inputs:
-                      azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
-                      scriptType: 'bash'
-                      scriptLocation: 'inlineScript'
-                      inlineScript: |
-                        echo "Creating Databricks workspace '$(databricksWorkspace)'"
-                        az group deployment create \
-                          --resource-group "$(rg)" \
-                          --name "Databricks" \
-                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
-                          --parameters "workspaceName=$(databricksWorkspace)"
-
-                        echo "Creating Databricks VNet"
-                        az network vnet create \
-                            --name $(databricksVNet) \
-                            --resource-group $(rg) \
-                            --location $(region) \
-                            --address-prefixes $(databricksVNetAddressPrefixes) 
-
-                        echo "Creating Databricks NSG"
-                        az network nsg create \
-                            --name $(databricksNSG) \
-                            --resource-group $(rg) \
-
-                        echo "Creating Databricks Private Subnet"
-                        az network vnet subnet create \
-                            --name $(databricksPrivateSNet) \
-                            --resource-group $(rg) \
-                            --address-prefixes $(databricksPrivateSNetAddressPrefixes) \
-                            --network-security-group $(databricksNSG) \
-                            --vnet-name $(databricksVNet)
-
-                        echo "Creating Databricks Public Subnet"
-                        az network vnet subnet create \
-                            --name $(databricksPublicSNet) \
-                            --resource-group $(rg) \
-                            --address-prefixes $(databricksPublicSNetAddressPrefixes) \
-                            --network-security-group $(databricksNSG) \
-                            --vnet-name $(databricksVNet)
-
-                - task: AzureCLI@2
-                  displayName: 'Create Databricks NSG Rules'
-                  inputs:
-                      azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
-                      scriptType: bash
-                      scriptLocation: scriptPath
-                      scriptPath: '$(Pipeline.Workspace)/deploy/scripts/create-databricks-nsg-rules.sh'
-                      arguments: |
-                        --nsg-name $(databricksNSG) \
-                        --resource-group $(rg) 
