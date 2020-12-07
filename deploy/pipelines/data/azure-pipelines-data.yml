@@ -148,7 +148,7 @@ stages:
                     scriptLocation: inlineScript
                     inlineScript: |
                       echo "Creating Event Hub Namespace"
-                      az eventhubs namespace create --name $(eventHubNameSpace) --resource-group $(rg) -location $(region)
+                      az eventhubs namespace create --name $(eventHubNameSpace) --resource-group $(rg) --location $(region)
 
                       echo "Creating Event Hub"
                       az eventhubs eventhub create --name $(eventHubName) --resource-group $(rg) --namespace-name $(eventHubNameSpace)
