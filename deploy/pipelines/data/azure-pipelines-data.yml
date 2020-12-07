@@ -10,8 +10,8 @@ variables:
 
   system.debug: true
   organisationCode: cob
-  region: australiaeast
-  regionCode: aue
+  region: australiasoutheast
+  regionCode: ause
   containerName: default
   projectCode: datamvp
   rg: rg-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
@@ -105,9 +105,8 @@ stages:
                     scriptLocation: inlineScript
                     inlineScript: |
                       echo "Creating Data Lake Store Gen2"
-                      az dls account create \
-                          --resource-group "$(rg)" \
-                          --account "$(dataLakeStorage)"
+                      az storage account create \
+                          -n "$(dataLakeStorage)" -g "$(rg)" --kind StorageV2 --hns
 
 
                 - task: AzureCLI@2
