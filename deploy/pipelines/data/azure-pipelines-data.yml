@@ -28,7 +28,7 @@ variables:
 
   keyVault: kv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
 
-  eventHubNameSpace: evhubns-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  eventHubNameSpace: evhubns$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)
   eventHubName: evhub-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   
   cobsalogStorageAccount: salog$(organisationCode)$(environmentCode)$(regionCode)
@@ -139,7 +139,6 @@ stages:
                     inlineScript: |
                       echo "Creating Keyvault"
                       az keyvault create --location $(region) --name $(keyVault) --resource-group $(rg)
-
 
                 - task: AzureCLI@2
                   displayName: Create Event Hub
