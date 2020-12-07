@@ -1,0 +1,98 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "dataFactoryName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the data factory. Name must be globally unique"
+      }
+    },
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the log analytics workspace. Name must be globally unique"
+      }
+    },
+    "logRetentionInDays": {
+      "type": "int",
+      "defaultValue": 60,
+      "metadata": {
+        "description": "Number of days to retain data fatcory logs"
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "diagSettingName": "adfdiagnostics"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-03-01-preview",
+      "name": "[parameters('workspaceName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": {
+          "name": "pergb2018"
+        },
+        "retentionInDays": "[parameters('logRetentionInDays')]",
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+
+      }
+    },
+    {
+      "type": "Microsoft.DataFactory/factories",
+      "apiVersion": "2018-06-01",
+      "name": "[parameters('dataFactoryName')]",
+      "location": "[resourceGroup().location]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces',parameters('workspaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DataFactory/factories/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "[concat(parameters('dataFactoryName'),'/Microsoft.Insights/',variables('diagSettingName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "name": "[variables('diagSettingName')]",
+        "storageAccountId": null,
+        "eventHubAuthorizationRuleId": null,
+        "eventHubName": null,
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces',parameters('workspaceName'))]",
+        "logs": [
+          {
+            "category": "TriggerRuns",
+            "enabled": true
+          },
+          {
+            "category": "PipelineRuns",
+            "enabled": true
+          },
+          {
+            "category": "ActivityRuns",
+            "enabled": true
+          }
+        ],
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": true
+          }
+        ],
+        "logAnalyticsDestinationType": "Dedicated"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DataFactory/factories',parameters('dataFactoryName'))]"
+      ]
+    }
+
+  ],
+  "outputs": {}
+}
