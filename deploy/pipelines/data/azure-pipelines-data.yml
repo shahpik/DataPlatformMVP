@@ -27,6 +27,9 @@ variables:
   dataLakeStorage: dlst$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01  
 
   keyVault: kv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+
+  eventHubNameSpace: evhubns-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  eventHubName: evhub-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   
   cobsalogStorageAccount: salog$(organisationCode)$(environmentCode)$(regionCode)
   cobsaStorageAccount: sa$(organisationCode)$(environmentCode)$(regionCode)
@@ -136,3 +139,19 @@ stages:
                     inlineScript: |
                       echo "Creating Keyvault"
                       az keyvault create --location $(region) --name $(keyVault) --resource-group $(rg)
+
+
+                - task: AzureCLI@2
+                  displayName: Create Event Hub
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Event Hub Namespace"
+                      az eventhubs namespace create --name $(eventHubNameSpace) --resource-group $(rg) -location $(region)
+
+                      echo "Creating Event Hub"
+                      az eventhubs eventhub create --name $(eventHubName) --resource-group $(rg) --namespace-name $(eventHubNameSpace)
+
+
