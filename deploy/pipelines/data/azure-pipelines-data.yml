@@ -80,59 +80,15 @@ stages:
                           --location "$(region)"
 
                 - task: AzureCLI@2
-                  displayName: 'Create Logging resources'
-                  inputs:
-                        azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
-                        scriptType: 'bash'
-                        scriptLocation: 'inlineScript'
-                        inlineScript: |
-                          echo "Creating Log Analytics workspace '$(logAnalyticsWorkspace)'"
-                          az group deployment create \
-                            --resource-group $(rg) \
-                            --name "LogAnalytics" \
-                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.OperationalInsights/azuredeploy.json" \
-                            --parameters "workspaceName=$(logAnalyticsWorkspace)"
-
-                          echo "Creating Storage Account and Container for Logging"
-                          az storage account create \
-                              -n $(cobsalogStorageAccount) \
-                              -g $(rg) \
-                              -l "$(region)" \
-                              --kind StorageV2 \
-                              --sku Standard_LRS
-
-                          az storage container create \
-                              -n "default" \
-                              --public-access off \
-                              --account-name $(cobsalogStorageAccount) \
-                              --account-key $(az storage account keys list -g $(rg) -n $(cobsalogStorageAccount) --query '[0].value' -o tsv)        
-                        
-                - task: AzureCLI@2
                   displayName: Create Azure Data Factory
                   inputs:
                     azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
-                      echo "Setting Dynamic install without prompt"
-                      az config set extension.use_dynamic_install=yes_without_prompt
-
                       echo "Creating Azure Data Factory '$(dataFactory)'"
-                      az datafactory factory create \
-                        --location "$(region)" \
-                        --resource-group "$(rg)" \
-                        --name "$(dataFactory)"
-
-                - task: AzureCLI@2
-                  displayName: Create Azure Data Factory via ARM
-                  inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating Azure Data Factory '$(dataFactory)'"
-                      az group deployment create \
+                      az deployment group create \
                             --resource-group $(rg) \
                             --name "AzureDataFactory" \
                             --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
-                            --parameters dataFactoryName=$(dataFactory)02 workspaceName=$(logAnalyticsWorkspace)02
+                            --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace)
