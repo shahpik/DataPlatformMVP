@@ -87,7 +87,7 @@ stages:
                     azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
                     scriptType: bash
                     scriptLocation: inlineScript
-                    inlineScript: >
+                    inlineScript: |
                       echo "Setting Dynamic install without prompt"
                       az config set
                       extension.use_dynamic_install=yes_without_prompt
