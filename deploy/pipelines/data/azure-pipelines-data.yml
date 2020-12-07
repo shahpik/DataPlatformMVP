@@ -1,0 +1,156 @@
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - README.md
+
+variables:
+
+  system.debug: true
+  organisationCode: cob
+  region: australiasoutheast
+  regionCode: ause
+  containerName: default
+  projectCode: data
+  rg: rg-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  dataFactory: df-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  logAnalyticsWorkspace: log-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+
+  sqlDWServer: sql-srv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  sqlDWServerAdmin: adminsqldwnpe
+  sqlDWServerAdminPass: $(AZURESQLPASSWORD)
+  sqlDB: sqldb-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  sqlDW: sql-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  
+  dataLakeStorage: dlst$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01  
+
+  keyVault: kv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+
+  eventHubNameSpace: evhubns$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)
+  eventHubName: evhub-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  
+  cobsalogStorageAccount: salog$(organisationCode)$(environmentCode)$(regionCode)
+  cobsaStorageAccount: sa$(organisationCode)$(environmentCode)$(regionCode)
+
+  databricksWorkspace: dbr-$(organisationCode)-$(environmentCode)-$(regionCode)
+  databricksVNet: vnet-dbr-$(organisationCode)-$(environmentCode)-$(regionCode)
+  databricksVNetAddressPrefixes: 10.225.17.0/25
+  databricksNSG: nsgdbr$(organisationCode)$(environmentCode)$(regionCode)
+  databricksPrivateSNet: snet-dbr-pub-$(organisationCode)-$(environmentCode)-$(regionCode)
+  databricksPrivateSNetAddressPrefixes: 10.225.17.64/26
+  databricksPublicSNet: snet-dbr-priv-$(organisationCode)-$(environmentCode)-$(regionCode)
+  databricksPublicSNetAddressPrefixes: 10.225.17.0/26
+  analysisService: analysisservice$(organisationCode)$(environmentCode)$(regionCode)
+
+
+stages:
+
+  - stage: Build
+    displayName: Build Artefacts
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: deploy
+              artifact: deploy
+
+  - stage: DeployToTest
+    displayName: Deploy Test Environment
+    dependsOn: Build
+    condition: succeeded('Build')
+    variables:
+      environmentCode: tst
+    jobs:
+      - deployment: CreateDataResources
+        displayName: Create Data Resources
+        pool:
+          vmImage: ubuntu-latest
+        environment: Test
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: Create Resource Group
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Resource Group"
+                      az group create \
+                          --name "$(rg)" \
+                          --location "$(region)"
+
+                - task: AzureCLI@2
+                  displayName: Create Azure Data Factory
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Azure Data Factory '$(dataFactory)'"
+                      az deployment group create \
+                            --resource-group $(rg) \
+                            --name "AzureDataFactory" \
+                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
+                            --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace)
+
+                - task: AzureCLI@2
+                  displayName: Create Azure Data Lake Store Gen2
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Data Lake Store Gen2"
+                      az storage account create \
+                          -n "$(dataLakeStorage)" -g "$(rg)" --kind StorageV2 --hns
+
+                - task: AzureCLI@2
+                  displayName: Create SQL Server
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating SQL Server '$(sqlDWServer)'"
+                      az sql server create \
+                        --resource-group "$(rg)" \
+                        --name "$(sqlDWServer)" \
+                        --admin-password "$(sqlDWServerAdminPass)" \
+                        --admin-user "$(sqlDWServerAdmin)"
+
+                      echo "Creating SQL DB"
+                      az sql db create -g $(rg) -s $(sqlDWServer) -n $(sqlDB) --service-objective S0
+
+                - task: AzureCLI@2
+                  displayName: Create Azure Key Vault
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Keyvault"
+                      az keyvault create --location $(region) --name $(keyVault) --resource-group $(rg)
+
+                - task: AzureCLI@2
+                  displayName: Create Event Hub
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Event Hub Namespace"
+                      az eventhubs namespace create --name $(eventHubNameSpace) --resource-group $(rg) --location $(region)
+
+                      echo "Creating Event Hub"
+                      az eventhubs eventhub create --name $(eventHubName) --resource-group $(rg) --namespace-name $(eventHubNameSpace)
+
+

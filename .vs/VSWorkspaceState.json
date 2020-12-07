@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\deploy",
+    "\\deploy\\arm",
+    "\\deploy\\arm\\Microsoft.DataFactory",
+    "\\deploy\\arm\\Microsoft.OperationalInsights",
+    "\\deploy\\pipelines",
+    "\\deploy\\pipelines\\data",
+    "\\deploy\\scripts"
+  ],
+  "SelectedNode": "\\deploy\\pipelines\\data\\azure-pipelines-data.yml",
+  "PreviewInSolutionExplorer": false
+}
