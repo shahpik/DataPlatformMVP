@@ -591,127 +591,127 @@
         "[resourceId('Microsoft.MachineLearningServices/workspaces',parameters('workspaceName'))]"
       ]
     },
-      {
-        "type": "Microsoft.Resources/deployments",
-        "apiVersion": "2020-06-01",
-        "name": "DeployPrivateEndpoints",
-        "resourceGroup": "[parameters('vnetResourceGroupName')]",
-        "dependsOn": [
-          "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]",
-          "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
-        ],
-        "properties": {
-          "mode": "Incremental",
-          "template": {
-            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-            "contentVersion": "1.0.0.0",
-            "resources": [
-              {
-                "condition": "[variables('enablePE')]",
-                "type": "Microsoft.Network/privateEndpoints",
-                "apiVersion": "2020-06-01",
-                "name": "[concat(parameters('privateEndpointName'))]",
-                "location": "[parameters('vnetLocation')]",
-                "tags": "[parameters('tagValues')]",
-                "properties": {
-                  "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('defaultPEConnections'), json('null'))]",
-                  "manualPrivateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'ManualApproval'), variables('defaultPEConnections'), json('null'))]",
-                  "subnet": {
-                    "id": "[variables('subnet')]"
-                  }
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "DeployPrivateEndpoints",
+      "resourceGroup": "[parameters('vnetResourceGroupName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "condition": "[variables('enablePE')]",
+              "type": "Microsoft.Network/privateEndpoints",
+              "apiVersion": "2020-06-01",
+              "name": "[concat(parameters('privateEndpointName'))]",
+              "location": "[parameters('vnetLocation')]",
+              "tags": "[parameters('tagValues')]",
+              "properties": {
+                "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('defaultPEConnections'), json('null'))]",
+                "manualPrivateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'ManualApproval'), variables('defaultPEConnections'), json('null'))]",
+                "subnet": {
+                  "id": "[variables('subnet')]"
                 }
               }
-              //{
-              //  "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
-              //  "type": "Microsoft.Network/privateDnsZones",
-              //  "apiVersion": "2020-01-01",
-              //  "name": "privatelink.api.azureml.ms",
-              //  "location": "global",
-              //  "dependsOn": [
-              //    "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
-              //  ],
-              //  "tags": "[parameters('tagValues')]",
-              //  "properties": {}
-              //},
-              //{
-              //  "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
-              //  "type": "Microsoft.Network/privateDnsZones",
-              //  "apiVersion": "2020-01-01",
-              //  "name": "privatelink.notebooks.azure.net",
-              //  "location": "global",
-              //  "dependsOn": [
-              //    "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
-              //  ],
-              //  "tags": "[parameters('tagValues')]",
-              //  "properties": {}
-              //},
-              //{
-              //  "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
-              //  "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-              //  "apiVersion": "2020-01-01",
-              //  "name": "[concat('privatelink.api.azureml.ms', '/', uniqueString(variables('vnet')))]",
-              //  "location": "global",
-              //  "dependsOn": [
-              //    "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
-              //    "privatelink.api.azureml.ms"
-              //  ],
-              //  "tags": "[parameters('tagValues')]",
-              //  "properties": {
-              //    "virtualNetwork": {
-              //      "id": "[variables('vnet')]"
-              //    },
-              //    "registrationEnabled": false
-              //  }
-              //},
-              //{
-              //  "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
-              //  "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-              //  "apiVersion": "2020-01-01",
-              //  "name": "[concat('privatelink.notebooks.azure.net', '/', uniqueString(variables('vnet')))]",
-              //  "location": "global",
-              //  "dependsOn": [
-              //    "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
-              //    "privatelink.notebooks.azure.net"
-              //  ],
-              //  "tags": "[parameters('tagValues')]",
-              //  "properties": {
-              //    "virtualNetwork": {
-              //      "id": "[variables('vnet')]"
-              //    },
-              //    "registrationEnabled": false
-              //  }
-              //},
-              //{
-              //  "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
-              //  "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-              //  "apiVersion": "2020-06-01",
-              //  "name": "[concat(parameters('privateEndpointName'), '/', 'default')]",
-              //  "location": "[parameters('vnetLocation')]",
-              //  "dependsOn": [
-              //    "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
-              //    "privatelink.notebooks.azure.net",
-              //    "privatelink.api.azureml.ms"
-              //  ],
-              //  "properties": {
-              //    "privateDnsZoneConfigs": [
-              //      {
-              //        "name": "privatelink-api-azureml-ms",
-              //        "properties": {
-              //          "privateDnsZoneId": "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateDnsZones', 'privatelink.api.azureml.ms')]"
-              //        }
-              //      },
-              //      {
-              //        "name": "privatelink-notebooks-azure-net",
-              //        "properties": {
-              //          "privateDnsZoneId": "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateDnsZones', 'privatelink.notebooks.azure.net')]"
-              //        }
-              //      }
-              //    ]
-              //  }
-              //}
-            ]
-          }
+            }
+            //{
+            //  "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+            //  "type": "Microsoft.Network/privateDnsZones",
+            //  "apiVersion": "2020-01-01",
+            //  "name": "privatelink.api.azureml.ms",
+            //  "location": "global",
+            //  "dependsOn": [
+            //    "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
+            //  ],
+            //  "tags": "[parameters('tagValues')]",
+            //  "properties": {}
+            //},
+            //{
+            //  "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+            //  "type": "Microsoft.Network/privateDnsZones",
+            //  "apiVersion": "2020-01-01",
+            //  "name": "privatelink.notebooks.azure.net",
+            //  "location": "global",
+            //  "dependsOn": [
+            //    "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
+            //  ],
+            //  "tags": "[parameters('tagValues')]",
+            //  "properties": {}
+            //},
+            //{
+            //  "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+            //  "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            //  "apiVersion": "2020-01-01",
+            //  "name": "[concat('privatelink.api.azureml.ms', '/', uniqueString(variables('vnet')))]",
+            //  "location": "global",
+            //  "dependsOn": [
+            //    "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
+            //    "privatelink.api.azureml.ms"
+            //  ],
+            //  "tags": "[parameters('tagValues')]",
+            //  "properties": {
+            //    "virtualNetwork": {
+            //      "id": "[variables('vnet')]"
+            //    },
+            //    "registrationEnabled": false
+            //  }
+            //},
+            //{
+            //  "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+            //  "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            //  "apiVersion": "2020-01-01",
+            //  "name": "[concat('privatelink.notebooks.azure.net', '/', uniqueString(variables('vnet')))]",
+            //  "location": "global",
+            //  "dependsOn": [
+            //    "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
+            //    "privatelink.notebooks.azure.net"
+            //  ],
+            //  "tags": "[parameters('tagValues')]",
+            //  "properties": {
+            //    "virtualNetwork": {
+            //      "id": "[variables('vnet')]"
+            //    },
+            //    "registrationEnabled": false
+            //  }
+            //},
+            //{
+            //  "condition": "[equals(parameters('privateEndpointType'), 'AutoApproval')]",
+            //  "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            //  "apiVersion": "2020-06-01",
+            //  "name": "[concat(parameters('privateEndpointName'), '/', 'default')]",
+            //  "location": "[parameters('vnetLocation')]",
+            //  "dependsOn": [
+            //    "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
+            //    "privatelink.notebooks.azure.net",
+            //    "privatelink.api.azureml.ms"
+            //  ],
+            //  "properties": {
+            //    "privateDnsZoneConfigs": [
+            //      {
+            //        "name": "privatelink-api-azureml-ms",
+            //        "properties": {
+            //          "privateDnsZoneId": "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateDnsZones', 'privatelink.api.azureml.ms')]"
+            //        }
+            //      },
+            //      {
+            //        "name": "privatelink-notebooks-azure-net",
+            //        "properties": {
+            //          "privateDnsZoneId": "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateDnsZones', 'privatelink.notebooks.azure.net')]"
+            //        }
+            //      }
+            //    ]
+            //  }
+            //}
+          ]
         }
       }
+    }
   ]
 }
