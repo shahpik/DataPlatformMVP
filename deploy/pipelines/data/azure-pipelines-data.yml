@@ -156,7 +156,7 @@ stages:
                               applicationInsightsResourceGroupName=$(rg) \
                               applicationInsightsName=$(mlAppInsights) \
                               storageAccountOption='new' \
-                              storageAccountResourceGroupName= $(rg) \
+                              storageAccountResourceGroupName=$(rg) \
                               storageAccountName=$(mlStorageAccount)
 
 
