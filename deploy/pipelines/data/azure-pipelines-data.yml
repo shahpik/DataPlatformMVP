@@ -38,7 +38,7 @@ variables:
   mlWorkspaceName: ml-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
   mlPrivateEndPoint: pep-ml-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
   mlPrivateSNet: snet-ml-priv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
-  mlPrivateSNetAddressPrefix: '10.43.70.0/28'
+  mlPrivateSNetAddressPrefix: '10.43.70.0/24'
   
 
   databricksWorkspace: dbr-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
