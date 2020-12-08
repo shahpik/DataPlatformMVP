@@ -14,9 +14,12 @@ variables:
   regionCode: ause
   containerName: default
   projectCode: data
+
   rg: rg-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+
   dataFactory: df-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
   dataFactoryIntegrationRuntime: 'IR-SelfHosted01-MEL15SQL-TC'
+
   logAnalyticsWorkspace: log-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
 
   sqlDWServer: sql-srv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
@@ -31,6 +34,11 @@ variables:
 
   eventHubNameSpace: evhubns$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)
   eventHubName: evhub-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+
+  mlWorkspaceName: ml-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  mlPrivateEndPoint: pep-ml-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  mlPrivateSNet: snet-ml-priv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  mlPrivateSNetAddressPrefix: '10.43.70.0/28'
   
 
   databricksWorkspace: dbr-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
@@ -85,6 +93,27 @@ stages:
                       az group create \
                           --name "$(rg)" \
                           --location "$(region)"
+
+                - task: AzureCLI@2
+                  displayName: Create Machine Learning WS
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                        echo "Creating Machine Learning Subnet for Private EndPoint"
+                        az network vnet subnet create \
+                            --name $(mlPrivateSNet) \
+                            --resource-group 'AUEVNW02-CS-RG' \
+                            --address-prefixes $(mlPrivateSNetAddressPrefix) \
+                            --vnet-name 'AUEVNW02-CS'
+
+                        echo "Adding Machine Learning extension"
+                        az extension add -n azure-cli-ml
+
+                        echo "Creating Machine Learning Workspace"
+                        az ml workspace create -w $(mlWorkspaceName) -g $(rg) --pe-name $(mlPrivateEndPoint) --pe-auto-approval true --pe-resource-group 'AUEVNW02-CS-RG' --pe-vnet-name 'AUEVNW02-CS' --pe-subnet-name $(mlPrivateSNet)
+
 
                 - task: AzureCLI@2
                   displayName: Create Azure Data Factory
