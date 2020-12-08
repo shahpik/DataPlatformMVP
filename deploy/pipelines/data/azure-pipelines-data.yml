@@ -16,6 +16,7 @@ variables:
   projectCode: data
   rg: rg-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   dataFactory: df-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  dataFactoryIntegrationRuntime: 'IR-SelfHosted01-MEL15SQL-TC'
   logAnalyticsWorkspace: log-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
 
   sqlDWServer: sql-srv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
@@ -31,18 +32,15 @@ variables:
   eventHubNameSpace: evhubns$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)
   eventHubName: evhub-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   
-  cobsalogStorageAccount: salog$(organisationCode)$(environmentCode)$(regionCode)
-  cobsaStorageAccount: sa$(organisationCode)$(environmentCode)$(regionCode)
 
-  databricksWorkspace: dbr-$(organisationCode)-$(environmentCode)-$(regionCode)
-  databricksVNet: vnet-dbr-$(organisationCode)-$(environmentCode)-$(regionCode)
-  databricksVNetAddressPrefixes: 10.225.17.0/25
-  databricksNSG: nsgdbr$(organisationCode)$(environmentCode)$(regionCode)
-  databricksPrivateSNet: snet-dbr-pub-$(organisationCode)-$(environmentCode)-$(regionCode)
-  databricksPrivateSNetAddressPrefixes: 10.225.17.64/26
-  databricksPublicSNet: snet-dbr-priv-$(organisationCode)-$(environmentCode)-$(regionCode)
-  databricksPublicSNetAddressPrefixes: 10.225.17.0/26
-  analysisService: analysisservice$(organisationCode)$(environmentCode)$(regionCode)
+  databricksWorkspace: dbr-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  databricksVNet: vnet-dbr-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  databricksVNetAddressPrefixes: '10.225.17.0/25'
+  databricksNSG: nsgdbr$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)
+  databricksPrivateSNet: snet-dbr-pub-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  databricksPrivateSNetAddressPrefixes: '10.225.17.64/26'
+  databricksPublicSNet: snet-dbr-priv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  databricksPublicSNetAddressPrefixes: '10.225.17.0/26'
 
 
 stages:
@@ -100,7 +98,60 @@ stages:
                             --resource-group $(rg) \
                             --name "AzureDataFactory" \
                             --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
-                            --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace)
+                            --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace) dataFactoryIRName=$(dataFactoryIntegrationRuntime)
+
+                - task: AzureCLI@2
+                  displayName: 'Create Databricks'
+                  inputs:
+                      azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                      scriptType: 'bash'
+                      scriptLocation: 'inlineScript'
+                      inlineScript: |
+                        echo "Creating Databricks workspace '$(databricksWorkspace)'"
+                        az deployment group create \
+                          --resource-group "$(rg)" \
+                          --name "Databricks" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
+                          --parameters "workspaceName=$(databricksWorkspace)"
+
+                        echo "Creating Databricks VNet"
+                        az network vnet create \
+                            --name $(databricksVNet) \
+                            --resource-group $(rg) \
+                            --location $(region) \
+                            --address-prefixes $(databricksVNetAddressPrefixes) 
+
+                        echo "Creating Databricks NSG"
+                        az network nsg create \
+                            --name $(databricksNSG) \
+                            --resource-group $(rg) \
+
+                        echo "Creating Databricks Private Subnet"
+                        az network vnet subnet create \
+                            --name $(databricksPrivateSNet) \
+                            --resource-group $(rg) \
+                            --address-prefixes $(databricksPrivateSNetAddressPrefixes) \
+                            --network-security-group $(databricksNSG) \
+                            --vnet-name $(databricksVNet)
+
+                        echo "Creating Databricks Public Subnet"
+                        az network vnet subnet create \
+                            --name $(databricksPublicSNet) \
+                            --resource-group $(rg) \
+                            --address-prefixes $(databricksPublicSNetAddressPrefixes) \
+                            --network-security-group $(databricksNSG) \
+                            --vnet-name $(databricksVNet)
+
+                - task: AzureCLI@2
+                  displayName: 'Create Databricks NSG Rules'
+                  inputs:
+                      azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                      scriptType: bash
+                      scriptLocation: scriptPath
+                      scriptPath: '$(Pipeline.Workspace)/deploy/scripts/create-databricks-nsg-rules.sh'
+                      arguments: |
+                        --nsg-name $(databricksNSG) --resource-group $(rg) 
+
 
                 - task: AzureCLI@2
                   displayName: Create Azure Data Lake Store Gen2
@@ -131,16 +182,6 @@ stages:
                       az sql db create -g $(rg) -s $(sqlDWServer) -n $(sqlDB) --service-objective S0
 
                 - task: AzureCLI@2
-                  displayName: Create Azure Key Vault
-                  inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating Keyvault"
-                      az keyvault create --location $(region) --name $(keyVault) --resource-group $(rg)
-
-                - task: AzureCLI@2
                   displayName: Create Event Hub
                   inputs:
                     azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
@@ -153,4 +194,12 @@ stages:
                       echo "Creating Event Hub"
                       az eventhubs eventhub create --name $(eventHubName) --resource-group $(rg) --namespace-name $(eventHubNameSpace)
 
-
+                - task: AzureCLI@2
+                  displayName: Create Azure Key Vault
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Keyvault"
+                      az keyvault create --location $(region) --name $(keyVault) --resource-group $(rg) --enable-soft-delete false

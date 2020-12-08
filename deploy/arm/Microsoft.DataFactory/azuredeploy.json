@@ -8,6 +8,12 @@
         "description": "Name of the data factory. Name must be globally unique"
       }
     },
+    "dataFactoryIRName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the data factory integration runtime."
+      }
+    },
     "workspaceName": {
       "type": "string",
       "metadata": {
@@ -114,6 +120,19 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.DataFactory/factories',parameters('dataFactoryName'))]"
+      ]
+    },
+    {
+      "name": "[concat(parameters('dataFactoryName'), '/', parameters('dataFactoryIRName'))]",
+      "type": "Microsoft.DataFactory/factories/integrationRuntimes",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "type": "SelfHosted",
+        "typeProperties": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DataFactory/factories',parameters('dataFactoryName'))]" 
+
       ]
     }
 
