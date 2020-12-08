@@ -98,7 +98,7 @@ stages:
                             --resource-group $(rg) \
                             --name "AzureDataFactory" \
                             --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
-                            --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace) dataFactoryIRName = $(dataFactoryIntegrationRuntime)
+                            --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace) dataFactoryIRName=$(dataFactoryIntegrationRuntime)
 
                 - task: AzureCLI@2
                   displayName: 'Create Databricks'
