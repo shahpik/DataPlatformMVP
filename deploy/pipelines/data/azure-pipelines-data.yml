@@ -30,7 +30,8 @@ variables:
   
   dataLakeStorage: dlst$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01  
 
-  keyVault: kv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  keyVaultData: kv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  keyVaultMl: kv-$(organisationCode)-ml-$(environmentCode)-$(regionCode)-01
 
   eventHubNameSpace: evhubns$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)
   eventHubName: evhub-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
@@ -95,6 +96,20 @@ stages:
                           --location "$(region)"
 
                 - task: AzureCLI@2
+                  displayName: Create Azure Key Vault for Data
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Keyvault for Data"
+                      az keyvault create --location $(region) --name $(keyVaultData) --resource-group $(rg) --enable-soft-delete false
+
+                      echo "Creating Keyvault for Machine Learning Service"
+                      az keyvault create --location $(region) --name $(keyVaultMl) --resource-group $(rg) --enable-soft-delete false
+                      
+
+                - task: AzureCLI@2
                   displayName: Create Machine Learning WS
                   inputs:
                     azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
@@ -123,7 +138,8 @@ stages:
                             --resource-group $(rg) \
                             --exist-ok \
                             --location $(region) \
-                            --pe-auto-approval true
+                            --pe-auto-approval true \
+                            --keyvault $(keyVaultMl)
 
 
                 - task: AzureCLI@2
@@ -233,13 +249,3 @@ stages:
 
                       echo "Creating Event Hub"
                       az eventhubs eventhub create --name $(eventHubName) --resource-group $(rg) --namespace-name $(eventHubNameSpace)
-
-                - task: AzureCLI@2
-                  displayName: Create Azure Key Vault
-                  inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating Keyvault"
-                      az keyvault create --location $(region) --name $(keyVault) --resource-group $(rg) --enable-soft-delete false
