@@ -16,6 +16,7 @@ variables:
   projectCode: data
   rg: rg-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   dataFactory: df-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  dataFactoryIntegrationRuntime: 'IR-SelfHosted01-MEL15SQL-TC'
   logAnalyticsWorkspace: log-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
 
   sqlDWServer: sql-srv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
@@ -86,6 +87,20 @@ stages:
                           --location "$(region)"
 
                 - task: AzureCLI@2
+                  displayName: Create Azure Data Factory
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Azure Data Factory '$(dataFactory)'"
+                      az deployment group create \
+                            --resource-group $(rg) \
+                            --name "AzureDataFactory" \
+                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
+                            --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace) dataFactoryIRName = $(dataFactoryIntegrationRuntime)
+
+                - task: AzureCLI@2
                   displayName: 'Create Databricks'
                   inputs:
                       azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
@@ -137,19 +152,6 @@ stages:
                       arguments: |
                         --nsg-name $(databricksNSG) --resource-group $(rg) 
 
-                - task: AzureCLI@2
-                  displayName: Create Azure Data Factory
-                  inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating Azure Data Factory '$(dataFactory)'"
-                      az deployment group create \
-                            --resource-group $(rg) \
-                            --name "AzureDataFactory" \
-                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
-                            --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace)
 
                 - task: AzureCLI@2
                   displayName: Create Azure Data Lake Store Gen2
