@@ -549,11 +549,39 @@
           {
             "category": "AmlComputeClusterEvent",
             "enabled": true
+          },
+          {
+            "category": "AmlComputeClusterNodeEvent",
+            "enabled": true
+          },
+          {
+            "category": "AmlComputeJobEvent",
+            "enabled": true
+          },
+          {
+            "category": "AmlComputeCpuGpuUtilization",
+            "enabled": true
+          },
+          {
+            "category": "AmlRunStatusChangedEvent",
+            "enabled": true
           }
         ],
         "metrics": [
           {
             "category": "Run",
+            "enabled": true
+          },
+          {
+            "category": "Resource",
+            "enabled": true
+          },
+          {
+            "category": "Model",
+            "enabled": true
+          },
+          {
+            "category": "Quota",
             "enabled": true
           }
         ],
