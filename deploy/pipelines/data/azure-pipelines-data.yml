@@ -106,7 +106,7 @@ stages:
                             --name $(mlPrivateSNet) \
                             --resource-group 'AUEVNW02-CS-RG' \
                             --address-prefixes $(mlPrivateSNetAddressPrefix) \
-                            --vnet-name 'AUEVNW02-CS''
+                            --vnet-name 'AUEVNW02-CS'
 
                         echo "Adding Machine Learning extension"
                         az extension add -n azure-cli-ml
