@@ -43,6 +43,8 @@ variables:
   mlPrivateEndPoint: pep-ml-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
   mlPrivateSNet: snet-ml-priv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
   mlPrivateSNetAddressPrefix: '10.43.70.0/24'
+  mlAppInsights: ai-ml-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  mlStorageAccount: mlst$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01  
   
 
   databricksWorkspace: dbr-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
@@ -108,8 +110,6 @@ stages:
                       echo "Creating Key Vault for Data"
                       az keyvault create --location $(region) --name $(keyVaultData) --resource-group $(rg) --enable-soft-delete false
 
-                      echo "Creating Key Vault for Machine Learning Service"
-                      az keyvault create --location $(region) --name $(keyVaultMl) --resource-group $(rg) --enable-soft-delete false
                      
                 - task: AzureCLI@2
                   displayName: Create Azure Data Factory
@@ -132,14 +132,6 @@ stages:
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
-                        echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSNetAddressPrefix)"
-                        az network vnet subnet create \
-                            --name $(mlPrivateSNet) \
-                            --resource-group $(cobVnetDataRG) \
-                            --address-prefixes $(mlPrivateSNetAddressPrefix) \
-                            --vnet-name $(cobVnetData) \
-                            --disable-private-endpoint-network-policies true
-
                         echo "Creating Machine Learning Workspace"
                         az deployment group create \
                           --resource-group "$(rg)" \
@@ -153,12 +145,19 @@ stages:
                               vnetOption='existing' \
                               vnetResourceGroupName=$(cobVnetDataRG) \
                               subnetName=$(mlPrivateSNet) \
-                              subnetOption='existing' \
+                              subnetOption='new' \
+                              subnetPrefix=$(mlPrivateSNetAddressPrefix) \
                               privateEndpointName=$(mlPrivateEndPoint) \
-                              keyVaultOption='existing' \
+                              keyVaultOption='new' \
                               keyVaultResourceGroupName=$(rg) \
                               keyVaultName=$(keyVaultMl) \
-                              logAnalyticsworkspaceName=$(logAnalyticsWorkspace)
+                              logAnalyticsworkspaceName=$(logAnalyticsWorkspace) \
+                              applicationInsightsOption='new' \
+                              applicationInsightsResourceGroupName=$(rg) \
+                              applicationInsightsName=$(mlAppInsights) \
+                              storageAccountOption='new' \
+                              storageAccountResourceGroupName= $(rg) \
+                              storageAccountName=$(mlStorageAccount)
 
 
                 - task: AzureCLI@2
