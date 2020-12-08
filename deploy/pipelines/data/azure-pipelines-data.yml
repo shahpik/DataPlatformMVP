@@ -96,16 +96,16 @@ stages:
                           --location "$(region)"
 
                 - task: AzureCLI@2
-                  displayName: Create Azure Key Vault for Data
+                  displayName: Create Azure Key Vaults
                   inputs:
                     azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
-                      echo "Creating Keyvault for Data"
+                      echo "Creating Key Vault for Data"
                       az keyvault create --location $(region) --name $(keyVaultData) --resource-group $(rg) --enable-soft-delete false
 
-                      echo "Creating Keyvault for Machine Learning Service"
+                      echo "Creating Key Vault for Machine Learning Service"
                       az keyvault create --location $(region) --name $(keyVaultMl) --resource-group $(rg) --enable-soft-delete false
                       
 
@@ -138,7 +138,7 @@ stages:
                             --resource-group $(rg) \
                             --exist-ok \
                             --location $(region) \
-                            --pe-auto-approval true \
+                            --pe-auto-approval 'true' \
                             --keyvault $(keyVaultMl)
 
 
