@@ -122,7 +122,8 @@ stages:
                             --pe-vnet-name 'AUEVNW02-CS' \
                             --resource-group $(rg) \
                             --exist-ok \
-                            --location $(region)
+                            --location $(region) \
+                            --pe-auto-approval true
 
 
                 - task: AzureCLI@2
