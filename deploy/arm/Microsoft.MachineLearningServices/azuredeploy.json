@@ -313,6 +313,12 @@
       "metadata": {
         "description": "Specifies name of private endpoint"
       }
+    },
+    "logAnalyticsworkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the log analytics workspace to send logs."
+      }
     }
   },
   "variables": {
@@ -538,7 +544,7 @@
         "storageAccountId": null,
         "eventHubAuthorizationRuleId": null,
         "eventHubName": null,
-        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces',parameters('workspaceName'))]",
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces',parameters('logAnalyticsworkspaceName'))]",
         "logs": [
           {
             "category": "AmlComputeClusterEvent",
@@ -552,7 +558,10 @@
           }
         ],
         "logAnalyticsDestinationType": "Dedicated"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.MachineLearningServices/workspaces',parameters('workspaceName'))]"
+      ]
     },
       {
         "type": "Microsoft.Resources/deployments",
