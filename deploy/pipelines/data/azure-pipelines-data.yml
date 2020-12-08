@@ -111,7 +111,7 @@ stages:
                         echo "Adding Machine Learning extension"
                         az extension add -n azure-cli-ml
 
-                         echo "Creating Machine Learning Workspace"
+                        echo "Creating Machine Learning Workspace"
                         az ml workspace create \
                             --workspace-name $(mlWorkspaceName) \
                             --pe-name $(mlPrivateEndPoint) \
