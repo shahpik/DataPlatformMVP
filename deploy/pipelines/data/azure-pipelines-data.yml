@@ -10,13 +10,16 @@ variables:
 
   system.debug: true
   organisationCode: cob
-  region: australiasoutheast
-  regionCode: ause
+  region: australiaeast
+  regionCode: aue
   containerName: default
   projectCode: data
+
   rg: rg-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+
   dataFactory: df-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
   dataFactoryIntegrationRuntime: 'IR-SelfHosted01-MEL15SQL-TC'
+
   logAnalyticsWorkspace: log-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
 
   sqlDWServer: sql-srv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
@@ -27,10 +30,16 @@ variables:
   
   dataLakeStorage: dlst$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01  
 
-  keyVault: kv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  keyVaultData: kv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  keyVaultMl: kv-$(organisationCode)-ml-$(environmentCode)-$(regionCode)-01
 
   eventHubNameSpace: evhubns$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)
   eventHubName: evhub-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+
+  mlWorkspaceName: ml-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  mlPrivateEndPoint: pep-ml-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  mlPrivateSNet: snet-ml-priv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  mlPrivateSNetAddressPrefix: '10.43.70.0/24'
   
 
   databricksWorkspace: dbr-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
@@ -85,6 +94,51 @@ stages:
                       az group create \
                           --name "$(rg)" \
                           --location "$(region)"
+
+                - task: AzureCLI@2
+                  displayName: Create Azure Key Vaults
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Key Vault for Data"
+                      az keyvault create --location $(region) --name $(keyVaultData) --resource-group $(rg) --enable-soft-delete false
+
+                      echo "Creating Key Vault for Machine Learning Service"
+                      az keyvault create --location $(region) --name $(keyVaultMl) --resource-group $(rg) --enable-soft-delete false
+                      
+
+                - task: AzureCLI@2
+                  displayName: Create Machine Learning WS
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                        echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSNetAddressPrefix)"
+                        az network vnet subnet create \
+                            --name $(mlPrivateSNet) \
+                            --resource-group 'AUEVNW02-CS-RG' \
+                            --address-prefixes $(mlPrivateSNetAddressPrefix) \
+                            --vnet-name 'AUEVNW02-CS' \
+                            --disable-private-endpoint-network-policies true
+
+
+                        echo "Adding Machine Learning extension"
+                        az extension add -n azure-cli-ml
+
+                        echo "Creating Machine Learning Workspace"
+                        az ml workspace create \
+                            --workspace-name $(mlWorkspaceName) \
+                            --pe-name $(mlPrivateEndPoint) \
+                            --pe-resource-group 'AUEVNW02-CS-RG' \
+                            --pe-subnet-name $(mlPrivateSNet) \
+                            --pe-vnet-name 'AUEVNW02-CS' \
+                            --resource-group $(rg) \
+                            --exist-ok \
+                            --location $(region) \
+                            --pe-auto-approval
 
                 - task: AzureCLI@2
                   displayName: Create Azure Data Factory
@@ -193,13 +247,3 @@ stages:
 
                       echo "Creating Event Hub"
                       az eventhubs eventhub create --name $(eventHubName) --resource-group $(rg) --namespace-name $(eventHubNameSpace)
-
-                - task: AzureCLI@2
-                  displayName: Create Azure Key Vault
-                  inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating Keyvault"
-                      az keyvault create --location $(region) --name $(keyVault) --resource-group $(rg) --enable-soft-delete false
