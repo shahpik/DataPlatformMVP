@@ -14,7 +14,7 @@
  		  "australiaeast",
  		  "australiasoutheast"
  		],
- 		"defaultValue": "australiasoutheast",
+ 		"defaultValue": "australiaeast",
  		"metadata": {
  		  "description": "Specifies the location in which to create the workspace."
  		}

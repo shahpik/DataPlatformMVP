@@ -10,8 +10,8 @@ variables:
 
   system.debug: true
   organisationCode: cob
-  region: australiasoutheast
-  regionCode: ause
+  region: australiaeast
+  regionCode: aue
   containerName: default
   projectCode: data
 
