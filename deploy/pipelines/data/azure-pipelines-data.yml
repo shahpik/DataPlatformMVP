@@ -101,7 +101,7 @@ stages:
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
-                        echo "Creating Machine Learning Subnet for Private EndPoint"
+                        echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSNetAddressPrefix)"
                         az network vnet subnet create \
                             --name $(mlPrivateSNet) \
                             --resource-group AUEVNW02-CS-RG \
@@ -111,8 +111,9 @@ stages:
                         echo "Adding Machine Learning extension"
                         az extension add -n azure-cli-ml
 
-                        az ml workspace create --workspace-name $(mlWorkspaceName) \
-                            --pe-auto-approval true \
+                         echo "Creating Machine Learning Workspace"
+                        az ml workspace create \
+                            --workspace-name $(mlWorkspaceName) \
                             --pe-name $(mlPrivateEndPoint) \
                             --pe-resource-group AUEVNW02-CS-RG \
                             --pe-subnet-name $(mlPrivateSNet) \
