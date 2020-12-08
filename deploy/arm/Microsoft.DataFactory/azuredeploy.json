@@ -130,7 +130,10 @@
         "type": "SelfHosted",
         "typeProperties": {}
       },
-      "dependsOn": []
+      "dependsOn": [
+        "[resourceId('Microsoft.DataFactory/factories',parameters('dataFactoryName'))]" 
+
+      ]
     }
 
   ],
