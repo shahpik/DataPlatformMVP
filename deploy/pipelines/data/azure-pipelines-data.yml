@@ -138,7 +138,7 @@ stages:
                             --resource-group $(rg) \
                             --exist-ok \
                             --location $(region) \
-                            --pe-auto-approval 'true' \
+                            --pe-auto-approval \
                             --keyvault $(keyVaultMl)
 
 
