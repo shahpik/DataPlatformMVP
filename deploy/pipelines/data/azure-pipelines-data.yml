@@ -111,6 +111,8 @@ stages:
                         echo "Adding Machine Learning extension"
                         az extension add -n azure-cli-ml
 
+                        az ml -h
+
                         echo "Creating Machine Learning Workspace"
                         az ml workspace create -w $(mlWorkspaceName) -g $(rg) --pe-name $(mlPrivateEndPoint) --pe-auto-approval True --pe-resource-group 'AUEVNW02-CS-RG' --pe-vnet-name 'AUEVNW02-CS' --pe-subnet-name $(mlPrivateSNet)
 
