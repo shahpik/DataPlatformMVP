@@ -10,8 +10,8 @@ variables:
 
   system.debug: true
   organisationCode: cob
-  region: australiaeast
-  regionCode: aue
+  region: australiasoutheast
+  regionCode: ause
   containerName: default
   projectCode: data
   rg: rg-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
@@ -182,16 +182,6 @@ stages:
                       az sql db create -g $(rg) -s $(sqlDWServer) -n $(sqlDB) --service-objective S0
 
                 - task: AzureCLI@2
-                  displayName: Create Azure Key Vault
-                  inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating Keyvault"
-                      az keyvault create --location $(region) --name $(keyVault) --resource-group $(rg)
-
-                - task: AzureCLI@2
                   displayName: Create Event Hub
                   inputs:
                     azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
@@ -203,3 +193,13 @@ stages:
 
                       echo "Creating Event Hub"
                       az eventhubs eventhub create --name $(eventHubName) --resource-group $(rg) --namespace-name $(eventHubNameSpace)
+
+                - task: AzureCLI@2
+                  displayName: Create Azure Key Vault
+                  inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Keyvault"
+                      az keyvault create --location $(region) --name $(keyVault) --resource-group $(rg) --enable-soft-delete false
