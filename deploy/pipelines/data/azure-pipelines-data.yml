@@ -138,9 +138,7 @@ stages:
                             --resource-group $(rg) \
                             --exist-ok \
                             --location $(region) \
-                            --pe-auto-approval \
-                            --keyvault $(keyVaultMl)
-
+                            --pe-auto-approval
 
                 - task: AzureCLI@2
                   displayName: Create Azure Data Factory
