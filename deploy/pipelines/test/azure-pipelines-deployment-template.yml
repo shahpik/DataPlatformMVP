@@ -1,7 +1,7 @@
 jobs:
   - deployment: Deploy
     displayName: "Deploy Azure Data Services"
-    environment: $
+    environment: ${{ parameters.environment }}
     pool:
       vmImage: 'ubuntu-latest'
     strategy:
@@ -12,7 +12,7 @@ jobs:
           - task: AzureCLI@2
             displayName: 'Create Resource Group'
             inputs:
-                azureSubscription: 'SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01'
+                azureSubscription: ${{ parameters.azureServiceConnection }}
                 scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |
