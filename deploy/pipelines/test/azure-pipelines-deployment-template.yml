@@ -1,0 +1,22 @@
+jobs:
+  - deployment: Deploy
+    displayName: "Deploy Azure Data Services"
+    environment: $
+    pool:
+      vmImage: 'ubuntu-latest'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - task: AzureCLI@2
+            displayName: 'Create Resource Group'
+            inputs:
+                azureSubscription: $(AzureServiceConnection)
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                    echo "Creating Resource Group"
+                    az group create \
+                        --name $(rg) \
+                        --location $(region)
