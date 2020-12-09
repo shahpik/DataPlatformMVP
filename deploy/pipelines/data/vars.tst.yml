@@ -54,12 +54,11 @@ variables:
   #Resource Group
   rg: rg-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
 
-   #SQL Server
+  #SQL Server
   sqlDWServer: sql-srv-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   sqlDWServerAdmin: adminsqldwnpe
   sqlDWServerAdminPass: $(AZURESQLPASSWORD)
-  sqlDB: sqldb-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
-  sqlDW: sql-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  sqlDB: sql-db-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   sqlADTenantID: '822b1de0-74dd-4108-b48c-79cf22da9243'
   sqlADObjectID: 'e31d4a84-74ad-4a5e-a551-6805c16230f4'
   sqlADLoginName: 'AzSqlNonProdAdmin'
