@@ -20,4 +20,4 @@ stages:
       azureServiceConnection: '$(AzureServiceConnection)'
       rg: '$(ResourceGroup)'
       region: '$(Region)'
-      environment: 'TEST'
+      environment: 'tst'
