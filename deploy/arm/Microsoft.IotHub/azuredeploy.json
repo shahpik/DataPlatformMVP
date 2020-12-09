@@ -44,8 +44,8 @@
     }
   },
   "variables": {
-    "storageEndpoint": "[concat('cobIot', 'StorageEndpont')]",
-    "storageContainerName": "[concat('cobIot', 'results')]"
+    "storageEndpoint": "[concat('cobiot', 'StorageEndpont')]",
+    "storageContainerName": "[concat('cobiot', 'results')]"
   },
   "resources": [
     {
