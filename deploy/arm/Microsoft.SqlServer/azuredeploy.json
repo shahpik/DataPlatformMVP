@@ -88,7 +88,7 @@
       ]
     },
     {
-      "name": "[concat(variables('sqlServerName'),'/ActiveDirectory')]",
+      "name": "[concat(parameters('sqlServerName'),'/ActiveDirectory')]",
       "type": "Microsoft.Sql/servers/administrators",
       "dependsOn": [
         "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
