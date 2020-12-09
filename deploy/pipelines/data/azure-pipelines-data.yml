@@ -49,8 +49,8 @@ variables:
   mlAppInsights: ai-ml-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   mlStorageAccount: stml$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01
 
-  iotHubName: iot$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01
-  iotHubStorageAccount: stiot$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01
+  iotHubName: iot$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)
+  iotHubStorageAccount: stiot$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)
 
   databricksWorkspace: dbr-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   databricksVNet: vnet-dbr-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
