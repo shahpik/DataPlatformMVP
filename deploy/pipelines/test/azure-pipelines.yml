@@ -8,7 +8,7 @@ stages:
   - template: azure-pipelines-build-template.yml
 
 
-- stage: DeployTEST
+- stage: DeployTest
   displayName: 'Deploy Azure Data Services to TEST environment'
   condition: succeeded()
   dependsOn: Build
@@ -20,4 +20,4 @@ stages:
       azureServiceConnection: '$(AzureServiceConnection)'
       rg: '$(ResourceGroup)'
       region: '$(Region)'
-      environment: 'tst'
+      environment: 'test'

@@ -4,8 +4,6 @@ jobs:
     environment: ${{ parameters.environment }}
     pool:
       vmImage: 'ubuntu-latest'
-    variables:
-        azureServiceConnection: ${{ parameters.azureServiceConnection }}
     strategy:
       runOnce:
         deploy:
@@ -13,7 +11,7 @@ jobs:
           - task: AzureCLI@2
             displayName: 'Create Resource Group'
             inputs:
-                azureSubscription: $(azureServiceConnection)
+                azureSubscription: 'SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01'
                 scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |
