@@ -14,6 +14,9 @@ variables:
   regionCode: aue
   containerName: default
   projectCode: data
+  azureServiceConnection: 'SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01'
+  cobVnetDataRG: 'AUEVNW02-CS-RG'
+  cobVnetData: 'AUEVNW02-CS'
 
   rg: rg-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
 
@@ -30,8 +33,8 @@ variables:
   
   dataLakeStorage: dlst$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01  
 
-  keyVaultData: kv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
-  keyVaultMl: kv-$(organisationCode)-ml-$(environmentCode)-$(regionCode)-01
+  keyVaultData: kv-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-02
+  keyVaultMl: kv-$(organisationCode)-ml-$(environmentCode)-$(regionCode)-02
 
   eventHubNameSpace: evhubns$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)
   eventHubName: evhub-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
@@ -86,7 +89,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: Create Resource Group
                   inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    azureSubscription: $(azureServiceConnection)
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
@@ -107,43 +110,11 @@ stages:
 
                       echo "Creating Key Vault for Machine Learning Service"
                       az keyvault create --location $(region) --name $(keyVaultMl) --resource-group $(rg) --enable-soft-delete false
-                      
-
-                - task: AzureCLI@2
-                  displayName: Create Machine Learning WS
-                  inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                        echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSNetAddressPrefix)"
-                        az network vnet subnet create \
-                            --name $(mlPrivateSNet) \
-                            --resource-group 'AUEVNW02-CS-RG' \
-                            --address-prefixes $(mlPrivateSNetAddressPrefix) \
-                            --vnet-name 'AUEVNW02-CS' \
-                            --disable-private-endpoint-network-policies true
-
-
-                        echo "Adding Machine Learning extension"
-                        az extension add -n azure-cli-ml
-
-                        echo "Creating Machine Learning Workspace"
-                        az ml workspace create \
-                            --workspace-name $(mlWorkspaceName) \
-                            --pe-name $(mlPrivateEndPoint) \
-                            --pe-resource-group 'AUEVNW02-CS-RG' \
-                            --pe-subnet-name $(mlPrivateSNet) \
-                            --pe-vnet-name 'AUEVNW02-CS' \
-                            --resource-group $(rg) \
-                            --exist-ok \
-                            --location $(region) \
-                            --pe-auto-approval
-
+                     
                 - task: AzureCLI@2
                   displayName: Create Azure Data Factory
                   inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    azureSubscription: $(azureServiceConnection)
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
@@ -155,9 +126,45 @@ stages:
                             --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace) dataFactoryIRName=$(dataFactoryIntegrationRuntime)
 
                 - task: AzureCLI@2
+                  displayName: Create Machine Learning WS
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                        echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSNetAddressPrefix)"
+                        az network vnet subnet create \
+                            --name $(mlPrivateSNet) \
+                            --resource-group $(cobVnetDataRG) \
+                            --address-prefixes $(mlPrivateSNetAddressPrefix) \
+                            --vnet-name $(cobVnetData) \
+                            --disable-private-endpoint-network-policies true
+
+                        echo "Creating Machine Learning Workspace"
+                        az deployment group create \
+                          --resource-group "$(rg)" \
+                          --name "MachineLearningServices" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.MachineLearningServices/azuredeploy.json" \
+                          --parameters \
+                              workspaceName=$(mlWorkspaceName) \
+                              location=$(region) \
+                              privateEndpointType='AutoApproval' \
+                              vnetName=$(cobVnetData) \
+                              vnetOption='existing' \
+                              vnetResourceGroupName=$(cobVnetDataRG) \
+                              subnetName=$(mlPrivateSNet) \
+                              subnetOption='existing' \
+                              privateEndpointName=$(mlPrivateEndPoint) \
+                              keyVaultOption='existing' \
+                              keyVaultResourceGroupName=$(rg) \
+                              keyVaultName=$(keyVaultMl) \
+                              logAnalyticsworkspaceName=$(logAnalyticsWorkspace)
+
+
+                - task: AzureCLI@2
                   displayName: 'Create Databricks'
                   inputs:
-                      azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                      azureSubscription: $(azureServiceConnection)
                       scriptType: 'bash'
                       scriptLocation: 'inlineScript'
                       inlineScript: |
@@ -166,7 +173,7 @@ stages:
                           --resource-group "$(rg)" \
                           --name "Databricks" \
                           --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
-                          --parameters "workspaceName=$(databricksWorkspace)"
+                          --parameters workspaceName=$(databricksWorkspace)
 
                         echo "Creating Databricks VNet"
                         az network vnet create \
@@ -199,7 +206,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: 'Create Databricks NSG Rules'
                   inputs:
-                      azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                      azureSubscription: $(azureServiceConnection)
                       scriptType: bash
                       scriptLocation: scriptPath
                       scriptPath: '$(Pipeline.Workspace)/deploy/scripts/create-databricks-nsg-rules.sh'
@@ -210,7 +217,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: Create Azure Data Lake Store Gen2
                   inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    azureSubscription: $(azureServiceConnection)
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
@@ -221,7 +228,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: Create SQL Server
                   inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    azureSubscription: $(azureServiceConnection)
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
@@ -238,7 +245,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: Create Event Hub
                   inputs:
-                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    azureSubscription: $(azureServiceConnection)
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
