@@ -99,6 +99,21 @@ stages:
                           --location "$(region)"
 
                 - task: AzureCLI@2
+                  displayName: Create SQL Server
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating SQL Server '$(sqlDWServer)'"
+
+                      az deployment group create \
+                            --resource-group $(rg) \
+                            --name "SQLServer" \
+                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
+                            --parameters sqlServerName=$(sqlDWServer) databaseName=$(sqlDB) sqlAdministratorLogin=$(sqlDWServerAdmin) sqlAdministratorLoginPassword=$(sqlDWServerAdminPass) location=$(region)
+
+                - task: AzureCLI@2
                   displayName: Create Azure Key Vaults
                   inputs:
                     azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
@@ -224,23 +239,6 @@ stages:
                       echo "Creating Data Lake Store Gen2"
                       az storage account create \
                           -n "$(dataLakeStorage)" -g "$(rg)" --kind StorageV2 --hns
-
-                - task: AzureCLI@2
-                  displayName: Create SQL Server
-                  inputs:
-                    azureSubscription: $(azureServiceConnection)
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating SQL Server '$(sqlDWServer)'"
-                      az sql server create \
-                        --resource-group "$(rg)" \
-                        --name "$(sqlDWServer)" \
-                        --admin-password "$(sqlDWServerAdminPass)" \
-                        --admin-user "$(sqlDWServerAdmin)"
-
-                      echo "Creating SQL DB"
-                      az sql db create -g $(rg) -s $(sqlDWServer) -n $(sqlDB) --service-objective S0
 
                 - task: AzureCLI@2
                   displayName: Create Event Hub

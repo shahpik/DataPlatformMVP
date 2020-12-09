@@ -1,0 +1,104 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sqlServerName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "databaseName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "sqlAdministratorLogin": {
+      "type": "string",
+      "defaultValue": "SQLAdmin",
+      "metadata": {
+        "description": "The administrator username of the SQL Server."
+      }
+    },
+    "sqlAdministratorLoginPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The administrator password of the SQL Server."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "LinkedTemplatePrefix": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "ADtenantID": "91xxxbe-xxx-43bf-axxx0-c2fxxx47349",
+    "ADobjectID": "3exxc5-17xx3-xxb-9axxb2-e1xxx74b76",
+    "ADLogin": "Applications Team - Database Administrator",
+    "databaseEdition": "Basic",
+    "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
+    "databaseServiceObjectiveName": "Basic"
+  },
+  "resources": [
+    {
+      "name": "[parameters('sqlServerName')]",
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2020-02-02-preview",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "SqlServer"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('sqlAdministratorLogin')]",
+        "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
+        "version": "12.0"
+      },
+      "resources": [
+        {
+          "name": "[parameters('databaseName')]",
+          "type": "databases",
+          "apiVersion": "2020-02-02-preview",
+          "location": "[parameters('location')]",
+          "tags": {
+            "displayName": "Database"
+          },
+          "properties": {
+            "edition": "[variables('databaseEdition')]",
+            "collation": "[variables('databaseCollation')]",
+            "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+          },
+          "dependsOn": [
+            "[parameters('sqlServerName')]"
+          ],
+          "resources": []
+        },
+        {
+          "name": "AllowAllMicrosoftAzureIps",
+          "type": "firewallrules",
+          "apiVersion": "2020-02-02-preview",
+          "location": "[parameters('location')]",
+          "properties": {
+            "endIpAddress": "0.0.0.0",
+            "startIpAddress": "0.0.0.0"
+          },
+          "dependsOn": [
+            "[parameters('sqlServerName')]"
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "sqlServerFqdn": {
+      "type": "string",
+      "value": "[reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName]"
+    },
+    "sqlServerName": {
+      "type": "string",
+      "value": "[parameters('sqlServerName')]"
+    }
+  }
+}
