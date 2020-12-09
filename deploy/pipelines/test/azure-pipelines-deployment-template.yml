@@ -19,3 +19,24 @@ jobs:
                     az group create \
                         --name ${{ parameters.rg }} \
                         --location ${{ parameters.region }}
+
+          - task: AzureCLI@2
+            displayName: Create Azure Key Vaults
+            inputs:
+                    azureSubscription: SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Key Vault for Data"
+                      az keyvault create \
+                        --location ${{ parameters.region }} \
+                        --name ${{ parameters.keyVaultData }} \
+                        --resource-group ${{ parameters.rg }} \
+                        --enable-soft-delete false
+
+                      echo "Creating Key Vault for Machine Learning Service"
+                      az keyvault create \
+                        --location ${{ parameters.region }} \
+                        --name ${{ parameters.keyVaultMl }} \
+                        --resource-group ${{ parameters.rg }} \
+                        --enable-soft-delete false

@@ -21,3 +21,5 @@ stages:
       rg: '$(ResourceGroup)'
       region: '$(Region)'
       environment: 'test'
+      keyVaultData: ''
+      keyVaultMl: ''
