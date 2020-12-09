@@ -1,11 +1,13 @@
 variables:
   system.debug: true
+  environmentCode: tst
   orgCode: cob
   region: australiaeast
   regionCode: aue
   containerName: default
   projectCode: data
   azureServiceConnection: 'SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01'
+
 
   #COB VNets
   cobVnetDataRG: 'AUEVNW02-CS-RG'
