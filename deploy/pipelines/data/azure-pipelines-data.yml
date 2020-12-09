@@ -30,6 +30,9 @@ variables:
   sqlDWServerAdminPass: $(AZURESQLPASSWORD)
   sqlDB: sqldb-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   sqlDW: sql-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  sqlADTenantID: '822b1de0-74dd-4108-b48c-79cf22da9243'
+  sqlADObjectID: 'e31d4a84-74ad-4a5e-a551-6805c16230f4'
+  sqlADLoginName: 'AzSqlNonProdAdmin'
   
   dataLakeStorage: dlst$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01  
 
@@ -111,7 +114,16 @@ stages:
                             --resource-group $(rg) \
                             --name "SQLServer" \
                             --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
-                            --parameters sqlServerName=$(sqlDWServer) databaseName=$(sqlDB) sqlAdministratorLogin=$(sqlDWServerAdmin) sqlAdministratorLoginPassword=$(sqlDWServerAdminPass) location=$(region)
+                            --parameters \
+                                sqlServerName=$(sqlDWServer) \
+                                databaseName=$(sqlDB) \
+                                sqlAdministratorLogin=$(sqlDWServerAdmin) \
+                                sqlAdministratorLoginPassword=$(sqlDWServerAdminPass) \
+                                location=$(region) \
+                                adTenantID= $(sqlADTenantID) \
+                                adObjectID= $(sqlADObjectID) \
+                                adLogin= $(sqlADLoginName)
+
 
                 - task: AzureCLI@2
                   displayName: Create Azure Key Vaults

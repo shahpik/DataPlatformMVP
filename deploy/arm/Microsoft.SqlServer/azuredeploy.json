@@ -29,15 +29,48 @@
       "metadata": {
         "description": "Location for all resources."
       }
+    },
+    "adTenantID": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure AD Tenant ID"
+      }
+    },
+    "adObjectID": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure AD Object ID of user or group"
+      }
+    },
+    "adLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure AD Name of the Group"
+      }
+    },
+    "databaseEdition": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "metadata": {
+        "description": "Database edition"
+      }
+    },
+    "databaseCollation": {
+      "type": "string",
+      "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
+      "metadata": {
+        "description": "Database collation"
+      }
+    },
+    "databaseServiceObjectiveName": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "metadata": {
+        "description": "Database service objective name"
+      }
     }
   },
   "variables": {
-    "ADtenantID": "822b1de0-74dd-4108-b48c-79cf22da9243",
-    "ADobjectID": "e31d4a84-74ad-4a5e-a551-6805c16230f4",
-    "ADLogin": "AzSqlNonProdAdmin",
-    "databaseEdition": "Basic",
-    "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
-    "databaseServiceObjectiveName": "Basic"
   },
   "resources": [
     {
@@ -63,9 +96,9 @@
             "displayName": "Database"
           },
           "properties": {
-            "edition": "[variables('databaseEdition')]",
-            "collation": "[variables('databaseCollation')]",
-            "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+            "edition": "[parameters('databaseEdition')]",
+            "collation": "[parameters('databaseCollation')]",
+            "requestedServiceObjectiveName": "[parameters('databaseServiceObjectiveName')]"
           },
           "dependsOn": [
             "[parameters('sqlServerName')]"
@@ -96,9 +129,9 @@
       "apiVersion": "2020-02-02-preview",
       "properties": {
         "administratorType": "ActiveDirectory",
-        "login": "[variables('ADLogin')]",
-        "sid": "[variables('ADobjectID')]",
-        "tenantId": "[variables('ADtenantID')]"
+        "login": "[parameters('adLogin')]",
+        "sid": "[parameters('adObjectID')]",
+        "tenantId": "[parameters('adTenantID')]"
       }
     }
   ],
