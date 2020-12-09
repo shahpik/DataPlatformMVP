@@ -6,6 +6,9 @@ trigger:
     exclude:
       - README.md
 
+variables:
+- template: vars.tst.yml
+
 
 stages:
 
@@ -27,7 +30,7 @@ stages:
     dependsOn: Build
     condition: succeeded('Build')
     variables:
-    - template: vars.tst.yml
+      environmentCode: tst
     jobs:
       - deployment: CreateDataResources
         displayName: Create Data Resources
