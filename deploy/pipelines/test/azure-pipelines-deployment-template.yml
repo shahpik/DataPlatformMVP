@@ -4,15 +4,16 @@ jobs:
     environment: ${{ parameters.environment }}
     pool:
       vmImage: 'ubuntu-latest'
+    variables:
+        azureServiceConnection: ${{ parameters.azureServiceConnection }}
     strategy:
       runOnce:
         deploy:
           steps:
-
           - task: AzureCLI@2
             displayName: 'Create Resource Group'
             inputs:
-                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                azureSubscription: $(azureServiceConnection)
                 scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |
