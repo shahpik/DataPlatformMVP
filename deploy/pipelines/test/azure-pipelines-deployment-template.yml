@@ -13,12 +13,10 @@ jobs:
             displayName: 'Create Resource Group'
             inputs:
                 azureSubscription: 'SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01'
-                rg: $
-                region: $
                 scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |
                     echo "Creating Resource Group"
                     az group create \
-                        --name $(rg) \
-                        --location $(region)
+                        --name ${{ parameters.rg }} \
+                        --location ${{ parameters.region }}
