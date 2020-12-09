@@ -49,6 +49,9 @@ variables:
   mlAppInsights: ai-ml-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   mlStorageAccount: stml$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01
 
+  iotHubName: iot-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  iotHubStorageAccount: stiot$(organisationCode)$(projectCode)$(environmentCode)$(regionCode)01
+
   databricksWorkspace: dbr-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   databricksVNet: vnet-dbr-$(organisationCode)-$(projectCode)-$(environmentCode)-$(regionCode)
   databricksVNetAddressPrefixes: '10.225.17.0/25'
@@ -102,6 +105,22 @@ stages:
                           --name "$(rg)" \
                           --location "$(region)"
 
+                - task: AzureCLI@2
+                  displayName: 'Create IOT Hub'
+                  inputs:
+                      azureSubscription: $(azureServiceConnection)
+                      scriptType: 'bash'
+                      scriptLocation: 'inlineScript'
+                      inlineScript: |
+                        echo "Creating IOT Hub"
+                        az deployment group create \
+                          --resource-group "$(rg)" \
+                          --name "IOTHub" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.IotHub/azuredeploy.json" \
+                          --parameters \
+                                iotHubName=$(iotHubName) \
+                                 location=$(region) \
+                                  storageAccountName=$(iotHubStorageAccount)
 
                 - task: AzureCLI@2
                   displayName: Create Azure Key Vaults
