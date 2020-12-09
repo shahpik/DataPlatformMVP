@@ -32,9 +32,9 @@
     }
   },
   "variables": {
-    "ADtenantID": "91xxxbe-xxx-43bf-axxx0-c2fxxx47349",
-    "ADobjectID": "3exxc5-17xx3-xxb-9axxb2-e1xxx74b76",
-    "ADLogin": "Applications Team - Database Administrator",
+    "ADtenantID": "822b1de0-74dd-4108-b48c-79cf22da9243",
+    "ADobjectID": "e31d4a84-74ad-4a5e-a551-6805c16230f4",
+    "ADLogin": "AzSqlNonProdAdmin",
     "databaseEdition": "Basic",
     "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
     "databaseServiceObjectiveName": "Basic"
@@ -86,6 +86,20 @@
           ]
         }
       ]
+    },
+    {
+      "name": "[concat(variables('sqlServerName'),'/ActiveDirectory')]",
+      "type": "Microsoft.Sql/servers/administrators",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+      ],
+      "apiVersion": "2020-02-02-preview",
+      "properties": {
+        "administratorType": "ActiveDirectory",
+        "login": "[variables('ADLogin')]",
+        "sid": "[variables('ADobjectID')]",
+        "tenantId": "[variables('ADtenantID')]"
+      }
     }
   ],
   "outputs": {
