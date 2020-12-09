@@ -101,29 +101,6 @@ stages:
                           --name "$(rg)" \
                           --location "$(region)"
 
-                - task: AzureCLI@2
-                  displayName: Create SQL Server
-                  inputs:
-                    azureSubscription: $(azureServiceConnection)
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating SQL Server '$(sqlDWServer)'"
-
-                      az deployment group create \
-                            --resource-group $(rg) \
-                            --name "SQLServer" \
-                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
-                            --parameters \
-                                sqlServerName=$(sqlDWServer) \
-                                databaseName=$(sqlDB) \
-                                sqlAdministratorLogin=$(sqlDWServerAdmin) \
-                                sqlAdministratorLoginPassword=$(sqlDWServerAdminPass) \
-                                location=$(region) \
-                                adTenantID=$(sqlADTenantID) \
-                                adObjectID=$(sqlADObjectID) \
-                                adLogin=$(sqlADLoginName)
-
 
                 - task: AzureCLI@2
                   displayName: Create Azure Key Vaults
@@ -151,6 +128,29 @@ stages:
                             --name "AzureDataFactory" \
                             --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
                             --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace) dataFactoryIRName=$(dataFactoryIntegrationRuntime)
+
+                - task: AzureCLI@2
+                  displayName: Create SQL Server
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating SQL Server '$(sqlDWServer)'"
+
+                      az deployment group create \
+                            --resource-group $(rg) \
+                            --name "SQLServer" \
+                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
+                            --parameters \
+                                sqlServerName=$(sqlDWServer) \
+                                databaseName=$(sqlDB) \
+                                sqlAdministratorLogin=$(sqlDWServerAdmin) \
+                                sqlAdministratorLoginPassword=$(sqlDWServerAdminPass) \
+                                location=$(region) \
+                                adTenantID=$(sqlADTenantID) \
+                                adObjectID=$(sqlADObjectID) \
+                                adLogin=$(sqlADLoginName)
 
                 - task: AzureCLI@2
                   displayName: Create Machine Learning WS
