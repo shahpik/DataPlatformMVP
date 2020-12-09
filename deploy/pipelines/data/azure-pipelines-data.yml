@@ -120,9 +120,9 @@ stages:
                                 sqlAdministratorLogin=$(sqlDWServerAdmin) \
                                 sqlAdministratorLoginPassword=$(sqlDWServerAdminPass) \
                                 location=$(region) \
-                                adTenantID= $(sqlADTenantID) \
-                                adObjectID= $(sqlADObjectID) \
-                                adLogin= $(sqlADLoginName)
+                                adTenantID=$(sqlADTenantID) \
+                                adObjectID=$(sqlADObjectID) \
+                                adLogin=$(sqlADLoginName)
 
 
                 - task: AzureCLI@2
