@@ -1,0 +1,66 @@
+variables:
+  system.debug: true
+  environmentCode: tst
+  orgCode: cob
+  region: australiaeast
+  regionCode: aue
+  containerName: default
+  projectCode: data
+  azureServiceConnection: 'SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01'
+
+
+  #COB VNets
+  cobVnetDataRG: 'AUEVNW02-CS-RG'
+  cobVnetData: 'AUEVNW02-CS'
+
+  #Data Bricks
+  databricksWorkspace: dbr-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  databricksVNet: vnet-dbr-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  databricksVNetAddressPrefixes: '10.225.17.0/25'
+  databricksNSG: nsgdbr$(orgCode)$(projectCode)$(environmentCode)$(regionCode)
+  databricksPrivateSNet: snet-dbr-pub-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  databricksPrivateSNetAddressPrefixes: '10.225.17.64/26'
+  databricksPublicSNet: snet-dbr-priv-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  databricksPublicSNetAddressPrefixes: '10.225.17.0/26'
+
+  #Data Lake Storage
+  dataLakeStorage: dlst$(orgCode)$(projectCode)$(environmentCode)$(regionCode)01
+
+  #Data Factory
+  dataFactory: df-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  dataFactoryIntegrationRuntime: 'IR-SelfHosted01-MEL15SQL-TC'
+
+  #Event Hub
+  eventHubNameSpace: evhubns$(orgCode)$(projectCode)$(environmentCode)$(regionCode)
+  eventHubName: evhub-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+
+  #IOT
+  iotHubName: iot-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  iotHubStorageAccount: stiot$(orgCode)$(projectCode)$(environmentCode)$(regionCode)
+
+  #Key Vault
+  keyVaultData: kv-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  keyVaultMl: kv-$(orgCode)-ml-$(environmentCode)-$(regionCode)
+
+  #Log Analytics
+  logAnalyticsWorkspace: log-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+
+  #Machine Learning
+  mlWorkspaceName: ml-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  mlPrivateEndPoint: pep-ml-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  mlPrivateSNet: snet-ml-priv-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)-01
+  mlPrivateSNetAddressPrefix: '10.43.70.0/24'
+  mlAppInsights: ai-ml-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  mlStorageAccount: stml$(orgCode)$(projectCode)$(environmentCode)$(regionCode)01
+
+  #Resource Group
+  rg: rg-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+
+  #SQL Server
+  sqlDWServer: sql-srv-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  sqlDWServerAdmin: adminsqldwnpe
+  sqlDWServerAdminPass: $(AZURESQLPASSWORD)
+  sqlDB: sql-db-$(orgCode)-$(projectCode)-$(environmentCode)-$(regionCode)
+  sqlADTenantID: '822b1de0-74dd-4108-b48c-79cf22da9243'
+  sqlADObjectID: 'e31d4a84-74ad-4a5e-a551-6805c16230f4'
+  sqlADLoginName: 'AzSqlNonProdAdmin'
