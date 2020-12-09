@@ -17,9 +17,9 @@ stages:
   jobs:
   - template: azure-pipelines-deployment-template.yml
     parameters:
-      azureServiceConnection: '$(AzureServiceConnection)'
-      rg: '$(ResourceGroup)'
-      region: '$(Region)'
+      azureServiceConnection: $(AzureServiceConnection)
+      rg: $(ResourceGroup)
+      region: $(Region)
       environment: 'test'
-      keyVaultData: ''
-      keyVaultMl: ''
+      keyVaultData: $(KeyVaultData)
+      keyVaultMl: $(KeyVaultMl)
