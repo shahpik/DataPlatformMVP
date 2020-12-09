@@ -110,10 +110,19 @@ stages:
                     scriptLocation: inlineScript
                     inlineScript: |
                       echo "Creating Key Vault for Data"
-                      az keyvault create --location $(region) --name $(keyVaultData) --resource-group $(rg) --enable-soft-delete false
+                      az keyvault create \
+                        --location $(region) \
+                        --name $(keyVaultData) \
+                        --resource-group $(rg) \
+                        --enable-soft-delete false
 
                       echo "Creating Key Vault for Machine Learning Service"
-                      az keyvault create --location $(region) --name $(keyVaultMl) --resource-group $(rg) --enable-soft-delete false
+                      az keyvault create \
+                        --location $(region) \
+                        --name $(keyVaultMl) \
+                        --resource-group $(rg) \
+                        --enable-soft-delete false
+
                      
                 - task: AzureCLI@2
                   displayName: Create Azure Data Factory
@@ -127,7 +136,11 @@ stages:
                             --resource-group $(rg) \
                             --name "AzureDataFactory" \
                             --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
-                            --parameters dataFactoryName=$(dataFactory) workspaceName=$(logAnalyticsWorkspace) dataFactoryIRName=$(dataFactoryIntegrationRuntime)
+                            --parameters \
+                                dataFactoryName=$(dataFactory) \
+                                workspaceName=$(logAnalyticsWorkspace) \
+                                dataFactoryIRName=$(dataFactoryIntegrationRuntime)
+
 
                 - task: AzureCLI@2
                   displayName: Create SQL Server
@@ -137,7 +150,6 @@ stages:
                     scriptLocation: inlineScript
                     inlineScript: |
                       echo "Creating SQL Server '$(sqlDWServer)'"
-
                       az deployment group create \
                             --resource-group $(rg) \
                             --name "SQLServer" \
@@ -151,6 +163,7 @@ stages:
                                 adTenantID=$(sqlADTenantID) \
                                 adObjectID=$(sqlADObjectID) \
                                 adLogin=$(sqlADLoginName)
+
 
                 - task: AzureCLI@2
                   displayName: Create Machine Learning WS
@@ -166,6 +179,7 @@ stages:
                             --address-prefixes $(mlPrivateSNetAddressPrefix) \
                             --vnet-name $(cobVnetData) \
                             --disable-private-endpoint-network-policies true
+
 
                         echo "Creating Machine Learning Workspace"
                         az deployment group create \
@@ -230,6 +244,7 @@ stages:
                             --network-security-group $(databricksNSG) \
                             --vnet-name $(databricksVNet)
 
+
                 - task: AzureCLI@2
                   displayName: 'Create Databricks NSG Rules'
                   inputs:
@@ -250,7 +265,10 @@ stages:
                     inlineScript: |
                       echo "Creating Data Lake Store Gen2"
                       az storage account create \
-                          -n "$(dataLakeStorage)" -g "$(rg)" --kind StorageV2 --hns
+                          -n "$(dataLakeStorage)" \
+                          -g "$(rg)" \
+                          --kind StorageV2 --hns
+
 
                 - task: AzureCLI@2
                   displayName: Create Event Hub
@@ -260,7 +278,13 @@ stages:
                     scriptLocation: inlineScript
                     inlineScript: |
                       echo "Creating Event Hub Namespace"
-                      az eventhubs namespace create --name $(eventHubNameSpace) --resource-group $(rg) --location $(region)
+                      az eventhubs namespace create \
+                        --name $(eventHubNameSpace) \
+                        --resource-group $(rg) \
+                        --location $(region)
 
                       echo "Creating Event Hub"
-                      az eventhubs eventhub create --name $(eventHubName) --resource-group $(rg) --namespace-name $(eventHubNameSpace)
+                      az eventhubs eventhub create \
+                        --name $(eventHubName) \
+                        --resource-group $(rg) \
+                        --namespace-name $(eventHubNameSpace)
