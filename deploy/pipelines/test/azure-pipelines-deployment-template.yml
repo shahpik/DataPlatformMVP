@@ -16,7 +16,6 @@ jobs:
                 scriptLocation: inlineScript
                 inlineScript: |
                     echo "Creating Resource Group"
-                    Write-Output "Creating Resource Group..."
                     az group create \
                         --name ${{ parameters.rg }} \
                         --location ${{ parameters.region }}
