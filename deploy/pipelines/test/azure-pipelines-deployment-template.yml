@@ -73,7 +73,7 @@ jobs:
                         --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
                         --parameters \
                             sqlServerName=$(sqlServerName) \
-                            databaseName=$(sqlServerDatatBaseName) \
+                            databaseName=$(sqlServerDataBaseName) \
                             sqlAdministratorLogin=$(sqlServerAdminUserName) \
                             sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
                             location=$(region) \
