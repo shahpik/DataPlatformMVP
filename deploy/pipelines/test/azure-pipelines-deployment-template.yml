@@ -23,7 +23,7 @@ jobs:
           - task: AzureCLI@2
             displayName: Create Azure Key Vaults
             inputs:
-                    azureSubscription: 'SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01'
+                    azureSubscription: ${{ parameters.azureServiceConnection }}
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
