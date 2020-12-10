@@ -17,7 +17,7 @@ stages:
   jobs:
   - template: azure-pipelines-deployment-template.yml
     parameters:
-      azureServiceConnection: '$(AzureSvcConnection)'
+      azureSvcConnection: '$(AzureSvcConnection)'
       rg: $(ResourceGroup)
       region: $(Region)
       environment: 'test'
