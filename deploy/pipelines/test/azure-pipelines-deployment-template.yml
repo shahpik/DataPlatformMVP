@@ -36,7 +36,7 @@ jobs:
 
                   echo "Creating Key Vault for Machine Learning Service"
                   az keyvault create \
-                    --location $(Region) \
+                    --location $(region) \
                     --name $(KeyVaultML) \
                     --resource-group $(ResourceGroup) \
                     --enable-soft-delete false
@@ -57,6 +57,29 @@ jobs:
                             dataFactoryName=$(dataFactory) \
                             workspaceName=$(logAnalyticsWorkspace) \
                             dataFactoryIRName=$(dataFactoryIntegrationRuntime)
+
+
+            - task: AzureCLI@2
+              displayName: Create SQL Server
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating SQL Server '$(sqlServerName)'"
+                      az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "SQLServer" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
+                        --parameters \
+                            sqlServerName=$(sqlServerName) \
+                            databaseName=$(sqlServerDatatBaseName) \
+                            sqlAdministratorLogin=$(sqlServerAdminUserName) \
+                            sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
+                            location=$(region) \
+                            adTenantID=$(sqlAzureADGroupTenantID) \
+                            adObjectID=$(sqlAzureADGroupObjectID) \
+                            adLogin=$(sqlAzureADGroupLoginName)
 
 
 
