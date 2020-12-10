@@ -1,6 +1,9 @@
 trigger:
 - master
 
+variables:
+  - group: 'rm-az-connection-variable-group'
+
 stages:
 - stage: Build
   displayName: 'Build Azure Data Services'
@@ -17,7 +20,7 @@ stages:
   jobs:
   - template: azure-pipelines-deployment-template.yml
     parameters:
-      azureSvcConnection: '$(AzureSvcConnection)'
+      azureServiceConnection: '$(AzureServiceConnection_Test)'
       rg: $(ResourceGroup)
       region: $(Region)
       environment: 'test'
