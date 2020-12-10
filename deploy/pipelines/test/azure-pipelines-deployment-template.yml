@@ -41,5 +41,22 @@ jobs:
                     --resource-group $(ResourceGroup) \
                     --enable-soft-delete false
 
+            - task: AzureCLI@2
+              displayName: Create Azure Data Factory
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Azure Data Factory '$(dataFactory)'"
+                  az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "AzureDataFactory" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
+                        --parameters \
+                            dataFactoryName=$(dataFactory) \
+                            workspaceName=$(logAnalyticsWorkspace) \
+                            dataFactoryIRName=$(dataFactoryIntegrationRuntime)
+
 
 
