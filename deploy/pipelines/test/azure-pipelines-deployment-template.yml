@@ -11,7 +11,7 @@ jobs:
           - task: AzureCLI@2
             displayName: 'Create Resource Group'
             inputs:
-                azureSubscription: 'SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01'
+                azureSubscription: ${{ parametersazureServiceConnection }}
                 scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |
