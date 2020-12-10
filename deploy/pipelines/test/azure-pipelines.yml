@@ -9,7 +9,7 @@ stages:
 
 
 - stage: DeployTest
-  displayName: 'Deploy Azure Data Services to TEST environment'
+  displayName: 'Deploy Azure Data Services to Test environment'
   condition: succeeded()
   dependsOn: Build
   variables:
@@ -17,7 +17,7 @@ stages:
   jobs:
   - template: azure-pipelines-deployment-template.yml
     parameters:
-      azureServiceConnection: 'SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01'
+      azureServiceConnection: '$(AzureServiceConnection)'
       rg: $(ResourceGroup)
       region: $(Region)
       environment: 'test'
