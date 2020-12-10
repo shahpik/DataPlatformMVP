@@ -21,8 +21,4 @@ stages:
   - template: azure-pipelines-deployment-template.yml
     parameters:
       azureServiceConnection: '$(AzureServiceConnection_Test)'
-      rg: $(ResourceGroup)
-      region: $(Region)
       environment: 'test'
-      keyVaultData: $(KeyVaultData)
-      keyVaultMl: $(KeyVaultML)

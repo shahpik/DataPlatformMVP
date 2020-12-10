@@ -18,7 +18,7 @@ jobs:
                   echo "Creating Resource Group"
                   az group create \
                       --name $(ResourceGroup) \
-                      --location ${{ parameters.region }}
+                      --location $(Region)
 
             - task: AzureCLI@2
               displayName: Create Azure Key Vaults
@@ -29,16 +29,16 @@ jobs:
                 inlineScript: |
                   echo "Creating Key Vault for Data"
                   az keyvault create \
-                    --location ${{ parameters.region }} \
-                    --name ${{ parameters.keyVaultData }} \
-                    --resource-group ${{ parameters.rg }} \
+                    --location $(Region) \
+                    --name $(KeyVaultData) \
+                    --resource-group $(ResourceGroup) \
                     --enable-soft-delete false
 
                   echo "Creating Key Vault for Machine Learning Service"
                   az keyvault create \
-                    --location ${{ parameters.region }} \
-                    --name ${{ parameters.keyVaultMl }} \
-                    --resource-group ${{ parameters.rg }} \
+                    --location $(Region) \
+                    --name $(KeyVaultML) \
+                    --resource-group $(ResourceGroup) \
                     --enable-soft-delete false
 
 
