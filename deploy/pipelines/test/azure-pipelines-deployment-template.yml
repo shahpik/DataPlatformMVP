@@ -11,7 +11,7 @@ jobs:
           - task: AzureCLI@2
             displayName: 'Create Resource Group'
             inputs:
-                azureSubscription: ${{ parametersazureServiceConnection }}
+                azureSubscription: ${{ parameters.azureServiceConnection }}
                 scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |

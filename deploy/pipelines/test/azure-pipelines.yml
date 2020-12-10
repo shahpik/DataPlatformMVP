@@ -17,7 +17,7 @@ stages:
   jobs:
   - template: azure-pipelines-deployment-template.yml
     parameters:
-      azureServiceConnection: ${{variable.AzureServiceConnection}} 
+      azureServiceConnection: 'SC-DataPlatformMVP-AUE-Test-Spoke-Connected-01'
       rg: $(ResourceGroup)
       region: $(Region)
       environment: 'test'
