@@ -1,42 +1,45 @@
 jobs:
   - deployment: Deploy
-    displayName: "Deploy Azure Data Services"
-    environment: ${{ parameters.environment }}
+    displayName: Deploy Azure Data Services
+    environment: '${{ parameters.environment }}'
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: ubuntu-latest
     strategy:
       runOnce:
         deploy:
           steps:
-          - task: AzureCLI@2
-            displayName: 'Create Resource Group'
-            inputs:
-                azureSubscription: ${{ parameters.azureServiceConnection }}
+            - task: AzureCLI@2
+              displayName: Create Resource Group
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
                 scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |
-                    echo "Creating Resource Group"
-                    az group create \
-                        --name ${{ parameters.rg }} \
-                        --location ${{ parameters.region }}
+                  echo "Creating Resource Group"
+                  az group create \
+                      --name $(ResourceGroup) \
+                      --location ${{ parameters.region }}
 
-          - task: AzureCLI@2
-            displayName: Create Azure Key Vaults
-            inputs:
-                    azureSubscription: ${{ parameters.azureServiceConnection }}
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating Key Vault for Data"
-                      az keyvault create \
-                        --location ${{ parameters.region }} \
-                        --name ${{ parameters.keyVaultData }} \
-                        --resource-group ${{ parameters.rg }} \
-                        --enable-soft-delete false
+            - task: AzureCLI@2
+              displayName: Create Azure Key Vaults
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Key Vault for Data"
+                  az keyvault create \
+                    --location ${{ parameters.region }} \
+                    --name ${{ parameters.keyVaultData }} \
+                    --resource-group ${{ parameters.rg }} \
+                    --enable-soft-delete false
 
-                      echo "Creating Key Vault for Machine Learning Service"
-                      az keyvault create \
-                        --location ${{ parameters.region }} \
-                        --name ${{ parameters.keyVaultMl }} \
-                        --resource-group ${{ parameters.rg }} \
-                        --enable-soft-delete false
+                  echo "Creating Key Vault for Machine Learning Service"
+                  az keyvault create \
+                    --location ${{ parameters.region }} \
+                    --name ${{ parameters.keyVaultMl }} \
+                    --resource-group ${{ parameters.rg }} \
+                    --enable-soft-delete false
+
+
+
