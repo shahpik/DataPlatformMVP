@@ -1,0 +1,24 @@
+trigger:
+- master
+
+variables:
+  - group: 'rm-az-connection-variable-group'
+
+stages:
+- stage: Build
+  displayName: 'Build Azure Data Services'
+  jobs:
+  - template: azure-pipelines-build-template.yml
+
+
+- stage: DeployTest
+  displayName: 'Deploy Azure Data Services to Test environment'
+  condition: succeeded()
+  dependsOn: Build
+  variables:
+  - group: 'rm-data-tst-variable-group'
+  jobs:
+  - template: azure-pipelines-deployment-template.yml
+    parameters:
+      azureServiceConnection: '$(AzureServiceConnection_Test)'
+      environment: 'tst'

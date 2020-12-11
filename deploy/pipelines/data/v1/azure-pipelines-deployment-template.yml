@@ -1,0 +1,225 @@
+jobs:
+  - deployment: Deploy
+    displayName: Deploy Azure Data Services
+    environment: '${{ parameters.environment }}'
+    pool:
+      vmImage: ubuntu-latest
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureCLI@2
+              displayName: Create Resource Group
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Resource Group"
+                  az group create \
+                      --name $(ResourceGroup) \
+                      --location $(Region)
+
+            - task: AzureCLI@2
+              displayName: Create Azure Key Vaults
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Key Vault for Data"
+                  az keyvault create \
+                    --location $(Region) \
+                    --name $(KeyVaultData) \
+                    --resource-group $(ResourceGroup) \
+                    --enable-soft-delete false
+
+                  echo "Creating Key Vault for Machine Learning Service"
+                  az keyvault create \
+                    --location $(region) \
+                    --name $(KeyVaultML) \
+                    --resource-group $(ResourceGroup) \
+                    --enable-soft-delete false
+
+            - task: AzureCLI@2
+              displayName: Create Azure Data Factory
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Azure Data Factory '$(dataFactoryName)'"
+                  az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "AzureDataFactory" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
+                        --parameters \
+                            dataFactoryName=$(dataFactoryName) \
+                            workspaceName=$(logAnalyticsWorkspaceName) \
+                            dataFactoryIRName=$(dataFactoryIntegrationRuntime)
+
+            - task: AzureCLI@2
+              displayName: Create SQL Server
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating SQL Server '$(sqlServerName)'"
+                      az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "SQLServer" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
+                        --parameters \
+                            sqlServerName=$(sqlServerName) \
+                            databaseName=$(sqlServerDataBaseName) \
+                            sqlAdministratorLogin=$(sqlServerAdminUserName) \
+                            sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
+                            location=$(region) \
+                            adTenantID=$(sqlAzureADGroupTenantID) \
+                            adObjectID=$(sqlAzureADGroupObjectID) \
+                            adLogin=$(sqlAzureADGroupLoginName)
+
+            - task: AzureCLI@2
+              displayName: Create Machine Learning WS
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                        echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSubNetAddressPrefix)"
+                        az network vnet subnet create \
+                            --name $(MlPrivateSubNetName) \
+                            --resource-group $(cobVnetExistingDataRG) \
+                            --address-prefixes $(mlPrivateSubNetAddressPrefix) \
+                            --vnet-name $(cobVnetExistingData) \
+                            --disable-private-endpoint-network-policies true
+
+
+                        echo "Creating Machine Learning Workspace"
+                        az deployment group create \
+                          --resource-group "$(resourceGroup)" \
+                          --name "MachineLearningServices" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.MachineLearningServices/azuredeploy.json" \
+                          --parameters \
+                              workspaceName=$(mlWorkspaceName) \
+                              location=$(region) \
+                              privateEndpointType='AutoApproval' \
+                              vnetName=$(cobVnetExistingData) \
+                              vnetOption='existing' \
+                              vnetResourceGroupName=$(cobVnetExistingDataRG) \
+                              subnetName=$(mlPrivateSubNetName) \
+                              subnetOption='existing' \
+                              privateEndpointName=$(mlPrivateEndPoint) \
+                              keyVaultOption='new' \
+                              keyVaultResourceGroupName=$(resourceGroup) \
+                              keyVaultName=$(keyVaultML) \
+                              logAnalyticsworkspaceName=$(logAnalyticsWorkspaceName) \
+                              applicationInsightsOption='new' \
+                              applicationInsightsResourceGroupName=$(resourceGroup) \
+                              applicationInsightsName=$(mlAppInsightsName) \
+                              storageAccountOption='new' \
+                              storageAccountResourceGroupName=$(resourceGroup) \
+                              storageAccountName=$(mlStorageAccountName)
+
+            - task: AzureCLI@2
+              displayName: Create Azure Data Lake Store Gen2
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Data Lake Store Gen2"
+                      az storage account create \
+                          -n $(dataLakeStorageAccountName) \
+                          -g $(resourceGroup) \
+                          --kind StorageV2 --hns
+
+            - task: AzureCLI@2
+              displayName: Create Event Hub
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Event Hub Namespace"
+                      az eventhubs namespace create \
+                        --name $(eventHubNameSpace) \
+                        --resource-group $(resourceGroup) \
+                        --location $(region)
+
+                      echo "Creating Event Hub"
+                      az eventhubs eventhub create \
+                        --name $(eventHubName) \
+                        --resource-group $(resourceGroup) \
+                        --namespace-name $(eventHubNameSpace)
+
+            - task: AzureCLI@2
+              displayName: 'Create IOT Hub'
+              inputs:
+                      azureSubscription: '${{ parameters.azureServiceConnection }}'
+                      scriptType: 'bash'
+                      scriptLocation: 'inlineScript'
+                      inlineScript: |
+                        echo "Creating IOT Hub"
+                        az deployment group create \
+                          --resource-group $(resourceGroup) \
+                          --name "IOTHub" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.IotHub/azuredeploy.json" \
+                          --parameters \
+                                iotHubName=$(iotHubName) \
+                                location=$(region) \
+                                storageAccountName=$(iotHubStorageAccountName)
+
+            - task: AzureCLI@2
+              displayName: 'Create Databricks'
+              inputs:
+                      azureSubscription: '${{ parameters.azureServiceConnection }}'
+                      scriptType: 'bash'
+                      scriptLocation: 'inlineScript'
+                      inlineScript: |
+                        echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
+                        az deployment group create \
+                          --resource-group "$(resourceGroup)" \
+                          --name "Databricks" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
+                          --parameters 
+                                workspaceName=$(databricksWorkspaceName)
+
+                        echo "Creating Databricks VNet"
+                        az network vnet create \
+                            --name $(databricksVNet) \
+                            --resource-group $(resourceGroup) \
+                            --location $(region) \
+                            --address-prefixes $(databricksVNetAddressPrefixes) 
+
+                        echo "Creating Databricks NSG"
+                        az network nsg create \
+                            --name $(databricksNSGName) \
+                            --resource-group $(resourceGroup) \
+
+                        echo "Creating Databricks Private Subnet"
+                        az network vnet subnet create \
+                            --name $(databricksPrivateSubNet) \
+                            --resource-group $(resourceGroup) \
+                            --address-prefixes $(databricksPrivateSubNetAddressPrefixes) \
+                            --network-security-group $(databricksNSGName) \
+                            --vnet-name $(databricksVNet)
+
+                        echo "Creating Databricks Public Subnet"
+                        az network vnet subnet create \
+                            --name $(databricksPublicSubNet) \
+                            --resource-group $(resourceGroup) \
+                            --address-prefixes $(databricksPublicSubNetAddressPrefixes) \
+                            --network-security-group $(databricksNSGName) \
+                            --vnet-name $(databricksVNet)
+
+            - task: AzureCLI@2
+              displayName: 'Create Databricks NSG Rules'
+              inputs:
+                      azureSubscription: '${{ parameters.azureServiceConnection }}'
+                      scriptType: bash
+                      scriptLocation: scriptPath
+                      scriptPath: '$(Pipeline.Workspace)/deploy/scripts/create-databricks-nsg-rules.sh'
+                      arguments: |
+                        --nsg-name $(databricksNSGName) --resource-group $(resourceGroup) 

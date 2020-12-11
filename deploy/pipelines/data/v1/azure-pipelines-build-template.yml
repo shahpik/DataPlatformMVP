@@ -1,0 +1,13 @@
+
+jobs:
+  - job: 'Build'
+    displayName: "Build Azure Data Services"
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    
+    - task: PublishPipelineArtifact@1
+      displayName: Publish artifacts
+      inputs:
+        targetPath: deploy
+        artifact: deploy
