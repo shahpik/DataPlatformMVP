@@ -21,4 +21,4 @@ stages:
   - template: azure-pipelines-deployment-template.yml
     parameters:
       azureServiceConnection: '$(AzureServiceConnection_Test)'
-      environment: 'test'
+      environment: 'tst'
