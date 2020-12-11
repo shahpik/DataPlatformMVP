@@ -48,13 +48,13 @@ jobs:
                 scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |
-                  echo "Creating Azure Data Factory '$(dataFactory)'"
+                  echo "Creating Azure Data Factory '$(dataFactoryName)'"
                   az deployment group create \
                         --resource-group $(resourceGroup) \
                         --name "AzureDataFactory" \
                         --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
                         --parameters \
-                            dataFactoryName=$(dataFactory) \
+                            dataFactoryName=$(dataFactoryName) \
                             workspaceName=$(logAnalyticsWorkspaceName) \
                             dataFactoryIRName=$(dataFactoryIntegrationRuntime)
 
@@ -87,11 +87,11 @@ jobs:
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
-                        echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSNetAddressPrefix)"
+                        echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSubNetAddressPrefix)"
                         az network vnet subnet create \
-                            --name $(MlPrivateSNetName) \
+                            --name $(MlPrivateSubNetName) \
                             --resource-group $(cobVnetExistingDataRG) \
-                            --address-prefixes $(mlPrivateSNetAddressPrefix) \
+                            --address-prefixes $(mlPrivateSubNetAddressPrefix) \
                             --vnet-name $(cobVnetExistingData) \
                             --disable-private-endpoint-network-policies true
 
@@ -108,7 +108,7 @@ jobs:
                               vnetName=$(cobVnetExistingData) \
                               vnetOption='existing' \
                               vnetResourceGroupName=$(cobVnetExistingDataRG) \
-                              subnetName=$(mlPrivateSNetName) \
+                              subnetName=$(mlPrivateSubNetName) \
                               subnetOption='existing' \
                               privateEndpointName=$(mlPrivateEndPoint) \
                               keyVaultOption='new' \
