@@ -222,4 +222,4 @@ jobs:
                       scriptLocation: scriptPath
                       scriptPath: '$(Pipeline.Workspace)/deploy/scripts/create-databricks-nsg-rules.sh'
                       arguments: |
-                        --nsg-name $(databricksNSG) --resource-group $(resourceGroup) 
+                        --nsg-name $(databricksNSGName) --resource-group $(resourceGroup) 
