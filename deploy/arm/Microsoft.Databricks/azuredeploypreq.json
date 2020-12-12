@@ -1,0 +1,101 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "existingVnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing Vnet Name"
+      }
+    },
+    "customPublicSubnetName": {
+      "type": "string",
+      "defaultValue": "public-subnet",
+      "metadata": {
+        "description": "The name of the public subnet in the custom VNet."
+      }
+    },
+    "customPrivateSubnetName": {
+      "type": "string",
+      "defaultValue": "private-subnet",
+      "metadata": {
+        "description": "The name of the private subnet in the custom VNet."
+      }
+    }
+  },
+  "variables": {
+    "publicSubnetCidr": "10.225.17.0/26",
+    "privateSubnetCidr": "10.225.17.64/26"
+  },
+  "resources": [
+    {
+      "apiVersion": "2019-06-01",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('existingVnetName'), '/', parameters('customPublicSubnetName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressPrefix": "[variables('publicSubnetCidr')]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-public')]"
+        },
+        "delegations": [
+          {
+            "name": "databricks-del-private",
+            "properties": {
+              "serviceName": "Microsoft.Databricks/workspaces"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "nsg-public",
+        "nsg-private"
+      ]
+    },
+    {
+      "apiVersion": "2019-06-01",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('existingVnetName'), '/', parameters('customPrivateSubnetName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressPrefix": "[variables('privateSubnetCidr')]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-private')]"
+        },
+        "delegations": [
+          {
+            "name": "databricks-del-private",
+            "properties": {
+              "serviceName": "Microsoft.Databricks/workspaces"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "nsg-public",
+        "nsg-private"
+      ]
+    },
+    {
+      "apiVersion": "2020-05-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "nsg-public",
+      "location": "[parameters('location')]",
+      "properties": {}
+    },
+    {
+      "apiVersion": "2020-05-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "nsg-private",
+      "location": "[parameters('location')]",
+      "properties": {}
+    }
+  ]
+}
