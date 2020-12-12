@@ -28,11 +28,21 @@
       "metadata": {
         "description": "The name of the private subnet in the custom VNet."
       }
+    },
+    "customPrivateSubNetAddressPrefixes": {
+      "type": "string",
+      "metadata": {
+        "description": "Private Subnet CIDR"
+      }
+    },
+    "customPublicSubNetAddressPrefixes": {
+      "type": "string",
+      "metadata": {
+        "description": "Public Subnet CIDR"
+      }
     }
   },
   "variables": {
-    "publicSubnetCidr": "10.43.80.0/26",
-    "privateSubnetCidr": "10.43.90.0/26"
   },
   "resources": [
     {
@@ -41,7 +51,7 @@
       "name": "[concat(parameters('existingVnetName'), '/', parameters('customPublicSubnetName'))]",
       "location": "[parameters('location')]",
       "properties": {
-        "addressPrefix": "[variables('publicSubnetCidr')]",
+        "addressPrefix": "[parameters('customPublicSubNetAddressPrefixes')]",
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-public')]"
         },
@@ -65,7 +75,7 @@
       "name": "[concat(parameters('existingVnetName'), '/', parameters('customPrivateSubnetName'))]",
       "location": "[parameters('location')]",
       "properties": {
-        "addressPrefix": "[variables('privateSubnetCidr')]",
+        "addressPrefix": "[parameters('customPublicSubNetAddressPrefixes')]",
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-private')]"
         },
