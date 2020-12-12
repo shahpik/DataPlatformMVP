@@ -24,15 +24,29 @@
     },
     "customPrivateSubnetName": {
       "type": "string",
-      "defaultValue": "private-subnet",
+      "defaultValue": "nsg-private",
       "metadata": {
         "description": "The name of the private subnet in the custom VNet."
+      }
+    },
+    "customPublicSubnetNSGName": {
+      "type": "string",
+      "defaultValue": "nsg-public",
+      "metadata": {
+        "description": "The name of NSG for public subnet in the custom VNet."
+      }
+    },
+    "customPrivateSubnetNSGName": {
+      "type": "string",
+      "defaultValue": "private-subnet",
+      "metadata": {
+        "description": "The name of NSG for private subnet in the custom VNet."
       }
     }
   },
   "variables": {
-    "publicSubnetCidr": "10.225.17.0/26",
-    "privateSubnetCidr": "10.225.17.64/26"
+    "publicSubnetCidr": "10.43.80.0/26",
+    "privateSubnetCidr": "10.43.90.0/24"
   },
   "resources": [
     {
@@ -43,7 +57,7 @@
       "properties": {
         "addressPrefix": "[variables('publicSubnetCidr')]",
         "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-public')]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPublicSubnetNSGName'))]"
         },
         "delegations": [
           {
@@ -55,8 +69,8 @@
         ]
       },
       "dependsOn": [
-        "nsg-public",
-        "nsg-private"
+        "parameters('customPublicSubnetNSGName')",
+        "parameters('customPrivateSubnetNSGName')"
       ]
     },
     {
@@ -67,7 +81,7 @@
       "properties": {
         "addressPrefix": "[variables('privateSubnetCidr')]",
         "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-private')]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPrivateSubnetNSGName'))]"
         },
         "delegations": [
           {
@@ -79,21 +93,21 @@
         ]
       },
       "dependsOn": [
-        "nsg-public",
-        "nsg-private"
+        "parameters('customPublicSubnetNSGName')",
+        "parameters('customPrivateSubnetNSGName')"
       ]
     },
     {
       "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "nsg-public",
+      "name": "parameters('customPublicSubnetNSGName')",
       "location": "[parameters('location')]",
       "properties": {}
     },
     {
       "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "nsg-private",
+      "name": "parameters('customPrivateSubnetNSGName')",
       "location": "[parameters('location')]",
       "properties": {}
     }

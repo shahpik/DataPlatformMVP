@@ -34,7 +34,9 @@ jobs:
                           --name "DatabricksPrerequisites" \
                           --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploypreq.json" \
                           --parameters \
-                                existingVnetName='vnet-dbr-cob-data-tst-aue'
+                                existingVnetName=$(cobVnetExistingData) \
+                                customPublicSubnetName=$(databricksPublicSubNet) \
+                                customPrivateSubnetName=$(databricksPrivateSubNet)
 
                         echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
                         az deployment group create \
@@ -43,7 +45,9 @@ jobs:
                           --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
                           --parameters \
                                 workspaceName=$(databricksWorkspaceName) \
-                                existingVnetName='vnet-dbr-cob-data-tst-aue'
+                                existingVnetName=$(cobVnetExistingData) \
+                                customPublicSubnetName=$(databricksPublicSubNet) \
+                                customPrivateSubnetName=$(databricksPrivateSubNet)
 
             - task: AzureCLI@2
               displayName: Create Azure Key Vaults
