@@ -20,6 +20,40 @@ jobs:
                       --name $(ResourceGroup) \
                       --location $(Region)
 
+
+            - task: AzureCLI@2
+              displayName: 'Create Databricks'
+              inputs:
+                      azureSubscription: '${{ parameters.azureServiceConnection }}'
+                      scriptType: 'bash'
+                      scriptLocation: 'inlineScript'
+                      inlineScript: |
+                        echo "Creating Prerequisites for Databricks workspace '$(databricksWorkspaceName)'"
+                        echo "Provisioning subnets in existing VNET $(cobVnetExisting)"
+                        az deployment group create \
+                          --resource-group "$(cobVnetExistingRG)" \
+                          --name "DatabricksPrerequisites" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploypreq.json" \
+                          --parameters \
+                                existingVnetName=$(cobVnetExisting) \
+                                customPublicSubnetName=$(databricksPublicSubNet) \
+                                customPublicSubNetAddressPrefixes=$(databricksPublicSubNetAddressPrefixes) \
+                                customPublicSubNetNSGName=$(databricksPublicNSGName) \
+                                customPrivateSubnetName=$(databricksPrivateSubNet) \
+                                customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
+                                customPrivateSubNetNSGName=$(databricksPrivateNSGName)
+
+                        echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
+                        az deployment group create \
+                          --resource-group "$(resourceGroup)" \
+                          --name "Databricks" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
+                          --parameters \
+                                workspaceName=$(databricksWorkspaceName) \
+                                customVirtualNetworkId=$(cobVnetExistingResourceId) \
+                                customPublicSubnetName=$(databricksPublicSubNet) \
+                                customPrivateSubnetName=$(databricksPrivateSubNet)
+
             - task: AzureCLI@2
               displayName: Create Azure Key Vaults
               inputs:
@@ -90,9 +124,9 @@ jobs:
                         echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSubNetAddressPrefix)"
                         az network vnet subnet create \
                             --name $(MlPrivateSubNetName) \
-                            --resource-group $(cobVnetExistingDataRG) \
+                            --resource-group $(cobVnetExistingRG) \
                             --address-prefixes $(mlPrivateSubNetAddressPrefix) \
-                            --vnet-name $(cobVnetExistingData) \
+                            --vnet-name $(cobVnetExisting) \
                             --disable-private-endpoint-network-policies true
 
 
@@ -105,9 +139,9 @@ jobs:
                               workspaceName=$(mlWorkspaceName) \
                               location=$(region) \
                               privateEndpointType='AutoApproval' \
-                              vnetName=$(cobVnetExistingData) \
+                              vnetName=$(cobVnetExisting) \
                               vnetOption='existing' \
-                              vnetResourceGroupName=$(cobVnetExistingDataRG) \
+                              vnetResourceGroupName=$(cobVnetExistingRG) \
                               subnetName=$(mlPrivateSubNetName) \
                               subnetOption='existing' \
                               privateEndpointName=$(mlPrivateEndPoint) \
@@ -171,55 +205,7 @@ jobs:
                                 location=$(region) \
                                 storageAccountName=$(iotHubStorageAccountName)
 
-            - task: AzureCLI@2
-              displayName: 'Create Databricks'
-              inputs:
-                      azureSubscription: '${{ parameters.azureServiceConnection }}'
-                      scriptType: 'bash'
-                      scriptLocation: 'inlineScript'
-                      inlineScript: |
-                        echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
-                        az deployment group create \
-                          --resource-group "$(resourceGroup)" \
-                          --name "Databricks" \
-                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
-                          --parameters 
-                                workspaceName=$(databricksWorkspaceName)
+  
 
-                        echo "Creating Databricks VNet"
-                        az network vnet create \
-                            --name $(databricksVNet) \
-                            --resource-group $(resourceGroup) \
-                            --location $(region) \
-                            --address-prefixes $(databricksVNetAddressPrefixes) 
+     
 
-                        echo "Creating Databricks NSG"
-                        az network nsg create \
-                            --name $(databricksNSGName) \
-                            --resource-group $(resourceGroup) \
-
-                        echo "Creating Databricks Private Subnet"
-                        az network vnet subnet create \
-                            --name $(databricksPrivateSubNet) \
-                            --resource-group $(resourceGroup) \
-                            --address-prefixes $(databricksPrivateSubNetAddressPrefixes) \
-                            --network-security-group $(databricksNSGName) \
-                            --vnet-name $(databricksVNet)
-
-                        echo "Creating Databricks Public Subnet"
-                        az network vnet subnet create \
-                            --name $(databricksPublicSubNet) \
-                            --resource-group $(resourceGroup) \
-                            --address-prefixes $(databricksPublicSubNetAddressPrefixes) \
-                            --network-security-group $(databricksNSGName) \
-                            --vnet-name $(databricksVNet)
-
-            - task: AzureCLI@2
-              displayName: 'Create Databricks NSG Rules'
-              inputs:
-                      azureSubscription: '${{ parameters.azureServiceConnection }}'
-                      scriptType: bash
-                      scriptLocation: scriptPath
-                      scriptPath: '$(Pipeline.Workspace)/deploy/scripts/create-databricks-nsg-rules.sh'
-                      arguments: |
-                        --nsg-name $(databricksNSGName) --resource-group $(resourceGroup) 

@@ -1,0 +1,123 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "existingVnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing Vnet Name"
+      }
+    },
+    "customPublicSubnetName": {
+      "type": "string",
+      "defaultValue": "public-subnet",
+      "metadata": {
+        "description": "The name of the public subnet in the custom VNet."
+      }
+    },
+    "customPrivateSubnetName": {
+      "type": "string",
+      "defaultValue": "private-subnet",
+      "metadata": {
+        "description": "The name of the private subnet in the custom VNet."
+      }
+    },
+    "customPrivateSubNetAddressPrefixes": {
+      "type": "string",
+      "metadata": {
+        "description": "Private Subnet CIDR"
+      }
+    },
+    "customPublicSubNetAddressPrefixes": {
+      "type": "string",
+      "metadata": {
+        "description": "Public Subnet CIDR"
+      }
+    },
+    "customPublicSubNetNSGName": {
+      "type": "string",
+      "metadata": {
+        "description": "Public Subnet NSG"
+      }
+    },
+    "customPrivateSubNetNSGName": {
+      "type": "string",
+      "metadata": {
+        "description": "Private Subnet NSG"
+      }
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "apiVersion": "2019-06-01",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('existingVnetName'), '/', parameters('customPublicSubnetName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressPrefix": "[parameters('customPublicSubNetAddressPrefixes')]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPublicSubNetNSGName'))]"
+        },
+        "delegations": [
+          {
+            "name": "databricks-del-private",
+            "properties": {
+              "serviceName": "Microsoft.Databricks/workspaces"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[parameters('customPublicSubNetNSGName')]",
+        "[parameters('customPrivateSubNetNSGName')]"
+      ]
+    },
+    {
+      "apiVersion": "2019-06-01",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('existingVnetName'), '/', parameters('customPrivateSubnetName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressPrefix": "[parameters('customPrivateSubNetAddressPrefixes')]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPrivateSubNetNSGName'))]"
+        },
+        "delegations": [
+          {
+            "name": "databricks-del-private",
+            "properties": {
+              "serviceName": "Microsoft.Databricks/workspaces"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[parameters('customPublicSubNetNSGName')]",
+        "[parameters('customPrivateSubNetNSGName')]"
+      ]
+    },
+    {
+      "apiVersion": "2020-05-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[parameters('customPublicSubNetNSGName')]",
+      "location": "[parameters('location')]",
+      "properties": {}
+    },
+    {
+      "apiVersion": "2020-05-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[parameters('customPrivateSubNetNSGName')]",
+      "location": "[parameters('location')]",
+      "properties": {}
+    }
+  ]
+}
