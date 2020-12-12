@@ -69,8 +69,8 @@
         ]
       },
       "dependsOn": [
-        "parameters('customPublicSubnetNSGName')",
-        "parameters('customPrivateSubnetNSGName')"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPublicSubnetNSGName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPrivateSubnetNSGName'))]"
       ]
     },
     {
@@ -93,8 +93,8 @@
         ]
       },
       "dependsOn": [
-        "parameters('customPublicSubnetNSGName')",
-        "parameters('customPrivateSubnetNSGName')"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPublicSubnetNSGName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPrivateSubnetNSGName'))]"
       ]
     },
     {
