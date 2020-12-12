@@ -29,12 +29,13 @@ jobs:
                       scriptLocation: 'inlineScript'
                       inlineScript: |
                         echo "Creating Prerequisites for Databricks workspace '$(databricksWorkspaceName)'"
+                        echo "Provisioning subnets in existing VNET $(cobVnetExisting)"
                          az deployment group create \
-                          --resource-group "$(cobVnetExistingDataRG)" \
+                          --resource-group "$(cobVnetExistingRG)" \
                           --name "DatabricksPrerequisites" \
                           --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploypreq.json" \
                           --parameters \
-                                existingVnetName=$(cobVnetExistingData) \
+                                existingVnetName=$(cobVnetExisting) \
                                 customPublicSubnetName=$(databricksPublicSubNet) \
                                 customPrivateSubnetName=$(databricksPrivateSubNet) \
                                 customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
@@ -121,9 +122,9 @@ jobs:
                         echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSubNetAddressPrefix)"
                         az network vnet subnet create \
                             --name $(MlPrivateSubNetName) \
-                            --resource-group $(cobVnetExistingDataRG) \
+                            --resource-group $(cobVnetExistingRG) \
                             --address-prefixes $(mlPrivateSubNetAddressPrefix) \
-                            --vnet-name $(cobVnetExistingData) \
+                            --vnet-name $(cobVnetExisting) \
                             --disable-private-endpoint-network-policies true
 
 
@@ -136,9 +137,9 @@ jobs:
                               workspaceName=$(mlWorkspaceName) \
                               location=$(region) \
                               privateEndpointType='AutoApproval' \
-                              vnetName=$(cobVnetExistingData) \
+                              vnetName=$(cobVnetExisting) \
                               vnetOption='existing' \
-                              vnetResourceGroupName=$(cobVnetExistingDataRG) \
+                              vnetResourceGroupName=$(cobVnetExistingRG) \
                               subnetName=$(mlPrivateSubNetName) \
                               subnetOption='existing' \
                               privateEndpointName=$(mlPrivateEndPoint) \
