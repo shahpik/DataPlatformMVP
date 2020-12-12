@@ -32,7 +32,7 @@
   },
   "variables": {
     "publicSubnetCidr": "10.43.80.0/26",
-    "privateSubnetCidr": "10.43.90.0/24"
+    "privateSubnetCidr": "10.43.90.0/26"
   },
   "resources": [
     {
@@ -86,14 +86,14 @@
     {
       "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "parameters('customPublicSubnetNSGName')",
+      "name": "nsg-public",
       "location": "[parameters('location')]",
       "properties": {}
     },
     {
       "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "parameters('customPrivateSubnetNSGName')",
+      "name": "nsg-private",
       "location": "[parameters('location')]",
       "properties": {}
     }

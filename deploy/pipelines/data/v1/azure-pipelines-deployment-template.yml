@@ -45,7 +45,7 @@ jobs:
                           --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
                           --parameters \
                                 workspaceName=$(databricksWorkspaceName) \
-                                existingVnetName=$(cobVnetExistingData) \
+                                customVirtualNetworkId='/subscriptions/1b851150-8708-42bd-b24e-e88984ca963d/resourceGroups/AUEVNW02-CS-RG/providers/Microsoft.Network/virtualNetworks/AUEVNW02-CS' \
                                 customPublicSubnetName=$(databricksPublicSubNet) \
                                 customPrivateSubnetName=$(databricksPrivateSubNet)
 
