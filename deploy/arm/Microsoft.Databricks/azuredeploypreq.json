@@ -24,7 +24,7 @@
     },
     "customPrivateSubnetName": {
       "type": "string",
-      "defaultValue": "nsg-private",
+      "defaultValue": "private-subnet",
       "metadata": {
         "description": "The name of the private subnet in the custom VNet."
       }
@@ -38,7 +38,7 @@
     },
     "customPrivateSubnetNSGName": {
       "type": "string",
-      "defaultValue": "private-subnet",
+      "defaultValue": "nsg-private",
       "metadata": {
         "description": "The name of NSG for private subnet in the custom VNet."
       }
