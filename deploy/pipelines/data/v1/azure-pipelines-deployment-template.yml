@@ -30,7 +30,7 @@ jobs:
                       inlineScript: |
                         echo "Creating Prerequisites for Databricks workspace '$(databricksWorkspaceName)'"
                          az deployment group create \
-                          --resource-group "$(resourceGroup)" \
+                          --resource-group "$(cobVnetExistingDataRG)" \
                           --name "DatabricksPrerequisites" \
                           --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploypreq.json" \
                           --parameters \
