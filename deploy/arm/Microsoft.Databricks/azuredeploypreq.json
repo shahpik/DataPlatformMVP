@@ -31,14 +31,12 @@
     },
     "customPublicSubnetNSGName": {
       "type": "string",
-      "defaultValue": "nsg-public",
       "metadata": {
         "description": "The name of NSG for public subnet in the custom VNet."
       }
     },
     "customPrivateSubnetNSGName": {
       "type": "string",
-      "defaultValue": "nsg-private",
       "metadata": {
         "description": "The name of NSG for private subnet in the custom VNet."
       }
