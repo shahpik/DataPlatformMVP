@@ -36,9 +36,7 @@ jobs:
                           --parameters \
                                 existingVnetName=$(cobVnetExistingData) \
                                 customPublicSubnetName=$(databricksPublicSubNet) \
-                                customPrivateSubnetName=$(databricksPrivateSubNet) \
-                                customPublicSubnetNSGName=nsg-public \
-                                customPrivateSubnetNSGName=nsg-private
+                                customPrivateSubnetName=$(databricksPrivateSubNet)
 
                         echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
                         az deployment group create \

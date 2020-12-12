@@ -28,18 +28,6 @@
       "metadata": {
         "description": "The name of the private subnet in the custom VNet."
       }
-    },
-    "customPublicSubnetNSGName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of NSG for public subnet in the custom VNet."
-      }
-    },
-    "customPrivateSubnetNSGName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of NSG for private subnet in the custom VNet."
-      }
     }
   },
   "variables": {
@@ -55,7 +43,7 @@
       "properties": {
         "addressPrefix": "[variables('publicSubnetCidr')]",
         "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPublicSubnetNSGName'))]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-public')]"
         },
         "delegations": [
           {
@@ -67,8 +55,8 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPublicSubnetNSGName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPrivateSubnetNSGName'))]"
+        "nsg-public",
+        "nsg-private"
       ]
     },
     {
@@ -79,7 +67,7 @@
       "properties": {
         "addressPrefix": "[variables('privateSubnetCidr')]",
         "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPrivateSubnetNSGName'))]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-private')]"
         },
         "delegations": [
           {
@@ -91,8 +79,8 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPublicSubnetNSGName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPrivateSubnetNSGName'))]"
+        "nsg-public",
+        "nsg-private"
       ]
     },
     {
