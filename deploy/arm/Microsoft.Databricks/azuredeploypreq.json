@@ -40,6 +40,18 @@
       "metadata": {
         "description": "Public Subnet CIDR"
       }
+    },
+    "customPublicSubNetNSGName": {
+      "type": "string",
+      "metadata": {
+        "description": "Public Subnet NSG"
+      }
+    },
+    "customPrivateSubNetNSGName": {
+      "type": "string",
+      "metadata": {
+        "description": "Private Subnet NSG"
+      }
     }
   },
   "variables": {
@@ -53,7 +65,7 @@
       "properties": {
         "addressPrefix": "[parameters('customPublicSubNetAddressPrefixes')]",
         "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-public-dbr-cob-data-test-aue-01')]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPublicSubNetNSGName'))]"
         },
         "delegations": [
           {
@@ -65,8 +77,8 @@
         ]
       },
       "dependsOn": [
-        "nsg-public-dbr-cob-data-test-aue-01",
-        "nsg-private-dbr-cob-data-test-aue-01"
+        "[parameters('customPublicSubNetNSGName')]",
+        "[parameters('customPrivateSubNetNSGName')]"
       ]
     },
     {
@@ -77,7 +89,7 @@
       "properties": {
         "addressPrefix": "[parameters('customPrivateSubNetAddressPrefixes')]",
         "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-private-dbr-cob-data-test-aue-01')]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPrivateSubNetNSGName'))]"
         },
         "delegations": [
           {
@@ -89,21 +101,21 @@
         ]
       },
       "dependsOn": [
-        "nsg-public-dbr-cob-data-test-aue-01",
-        "nsg-private-dbr-cob-data-test-aue-01"
+        "[parameters('customPublicSubNetNSGName')]",
+        "[parameters('customPrivateSubNetNSGName')]"
       ]
     },
     {
       "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "nsg-public-dbr-cob-data-test-aue-01",
+      "name": "[parameters('customPublicSubNetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
     {
       "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "nsg-private-dbr-cob-data-test-aue-01",
+      "name": "[parameters('customPrivateSubNetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     }

@@ -39,7 +39,9 @@ jobs:
                                 customPublicSubnetName=$(databricksPublicSubNet) \
                                 customPrivateSubnetName=$(databricksPrivateSubNet) \
                                 customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
-                                customPublicSubNetAddressPrefixes=$(databricksPublicSubNetAddressPrefixes)
+                                customPublicSubNetAddressPrefixes=$(databricksPublicSubNetAddressPrefixes) \
+                                customPublicSubNetNSGName='nsg-public-dbr-cob-data-test-aue-01' \
+                                customPrivateSubNetNSGName='nsg-private-dbr-cob-data-test-aue-01'
 
                         echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
                         az deployment group create \
