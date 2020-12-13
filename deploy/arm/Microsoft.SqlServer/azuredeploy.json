@@ -119,7 +119,8 @@
           "dependsOn": [
             "[parameters('sqlServerName')]",
             "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName'))]",
-            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/master')]"
+            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/master')]",
+            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/', parameters('databaseName'))]"
           ],
           "apiVersion": "2017-05-01-preview",
           "properties": {

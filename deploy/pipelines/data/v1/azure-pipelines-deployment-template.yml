@@ -20,6 +20,68 @@ jobs:
                       --name $(ResourceGroup) \
                       --location $(Region)
 
+            - task: AzureCLI@2
+              displayName: Create Azure Data Factory
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Azure Data Factory '$(dataFactoryName)'"
+                  az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "AzureDataFactory" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
+                        --parameters \
+                            dataFactoryName=$(dataFactoryName) \
+                            workspaceName=$(logAnalyticsWorkspaceName) \
+                            dataFactoryIRName=$(dataFactoryIntegrationRuntime)
+
+            - task: AzureCLI@2
+              displayName: Create Azure Key Vaults
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Key Vault for Data"
+                  az keyvault create \
+                    --location $(Region) \
+                    --name $(KeyVaultData) \
+                    --resource-group $(ResourceGroup) \
+                    --enable-soft-delete false
+
+                  echo "Creating Key Vault for Machine Learning Service"
+                  az keyvault create \
+                    --location $(region) \
+                    --name $(KeyVaultML) \
+                    --resource-group $(ResourceGroup) \
+                    --enable-soft-delete false
+
+            - task: AzureCLI@2
+              displayName: Create SQL Server
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating SQL Server '$(sqlServerName)'"
+                      az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "SQLServer" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
+                        --parameters \
+                            sqlServerName=$(sqlServerName) \
+                            databaseName=$(sqlServerDataBaseName) \
+                            sqlAdministratorLogin=$(sqlServerAdminUserName) \
+                            sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
+                            location=$(region) \
+                            adTenantID=$(sqlAzureADGroupTenantID) \
+                            adObjectID=$(sqlAzureADGroupObjectID) \
+                            adLogin=$(sqlAzureADGroupLoginName) \
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
+
+
 
             - task: AzureCLI@2
               displayName: 'Create Databricks'
@@ -53,67 +115,6 @@ jobs:
                                 customVirtualNetworkId=$(cobVnetExistingResourceId) \
                                 customPublicSubnetName=$(databricksPublicSubNet) \
                                 customPrivateSubnetName=$(databricksPrivateSubNet)
-
-            - task: AzureCLI@2
-              displayName: Create SQL Server
-              inputs:
-                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating SQL Server '$(sqlServerName)'"
-                      az deployment group create \
-                        --resource-group $(resourceGroup) \
-                        --name "SQLServer" \
-                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
-                        --parameters \
-                            sqlServerName=$(sqlServerName) \
-                            databaseName=$(sqlServerDataBaseName) \
-                            sqlAdministratorLogin=$(sqlServerAdminUserName) \
-                            sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
-                            location=$(region) \
-                            adTenantID=$(sqlAzureADGroupTenantID) \
-                            adObjectID=$(sqlAzureADGroupObjectID) \
-                            adLogin=$(sqlAzureADGroupLoginName) \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
-
-            - task: AzureCLI@2
-              displayName: Create Azure Key Vaults
-              inputs:
-                azureSubscription: '${{ parameters.azureServiceConnection }}'
-                scriptType: bash
-                scriptLocation: inlineScript
-                inlineScript: |
-                  echo "Creating Key Vault for Data"
-                  az keyvault create \
-                    --location $(Region) \
-                    --name $(KeyVaultData) \
-                    --resource-group $(ResourceGroup) \
-                    --enable-soft-delete false
-
-                  echo "Creating Key Vault for Machine Learning Service"
-                  az keyvault create \
-                    --location $(region) \
-                    --name $(KeyVaultML) \
-                    --resource-group $(ResourceGroup) \
-                    --enable-soft-delete false
-
-            - task: AzureCLI@2
-              displayName: Create Azure Data Factory
-              inputs:
-                azureSubscription: '${{ parameters.azureServiceConnection }}'
-                scriptType: bash
-                scriptLocation: inlineScript
-                inlineScript: |
-                  echo "Creating Azure Data Factory '$(dataFactoryName)'"
-                  az deployment group create \
-                        --resource-group $(resourceGroup) \
-                        --name "AzureDataFactory" \
-                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
-                        --parameters \
-                            dataFactoryName=$(dataFactoryName) \
-                            workspaceName=$(logAnalyticsWorkspaceName) \
-                            dataFactoryIRName=$(dataFactoryIntegrationRuntime)
 
 
             - task: AzureCLI@2
