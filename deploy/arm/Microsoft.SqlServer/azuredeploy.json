@@ -118,7 +118,7 @@
           "name": "[concat('master/microsoft.insights/',variables('diagnosticSettingsName'))]",
           "dependsOn": [
             "[parameters('sqlServerName')]",
-            "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName'))]",
+            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName'))]",
             "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/master')]",
             "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/', parameters('databaseName'))]"
           ],
