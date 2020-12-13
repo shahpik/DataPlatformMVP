@@ -68,9 +68,16 @@
       "metadata": {
         "description": "Database service objective name"
       }
+    },
+    "logAnalyticsworkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the log analytics workspace to send logs."
+      }
     }
   },
   "variables": {
+    "diagnosticSettingsName": "sqldbdiagnostics"
   },
   "resources": [
     {
@@ -103,7 +110,45 @@
           "dependsOn": [
             "[parameters('sqlServerName')]"
           ],
-          "resources": []
+          "resources": [
+          ]
+        },
+        {
+          "type": "databases/providers/diagnosticSettings",
+          "name": "[concat('master/microsoft.insights/',variables('diagnosticSettingsName'))]",
+          "dependsOn": [
+            "[parameters('sqlServerName')]",
+            "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsworkspaceName'))]",
+            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/master')]"
+          ],
+          "apiVersion": "2017-05-01-preview",
+          "properties": {
+            "name": "[variables('diagnosticSettingsName')]",
+            "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsworkspaceName'))]",
+            "logs": [
+              {
+                "category": "SQLSecurityAuditEvents",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ]
+          }
+        },
+        {
+          "apiVersion": "2017-03-01-preview",
+          "type": "auditingSettings",
+          "name": "DefaultAuditingSettings",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers/', parameters('sqlServerName'))]"
+          ],
+          "properties": {
+            "State": "Enabled",
+            "auditActionsAndGroups": null,
+            "isAzureMonitorTargetEnabled": true
+          }
         },
         {
           "name": "AllowAllMicrosoftAzureIps",
