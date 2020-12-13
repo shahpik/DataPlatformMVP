@@ -119,7 +119,6 @@
           "location": "[resourceGroup().location]",
           "dependsOn": [
             "[parameters('sqlServerName')]",
-            "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/master')]",
             "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/', parameters('databaseName'))]"
           ],
           "apiVersion": "2017-05-01-preview",
