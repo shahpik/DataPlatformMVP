@@ -69,7 +69,7 @@
         "description": "Database service objective name"
       }
     },
-    "logAnalyticsworkspaceName": {
+    "logAnalyticsWorkspaceName": {
       "type": "string",
       "metadata": {
         "description": "Name of the log analytics workspace to send logs."
@@ -118,13 +118,13 @@
           "name": "[concat('master/microsoft.insights/',variables('diagnosticSettingsName'))]",
           "dependsOn": [
             "[parameters('sqlServerName')]",
-            "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsworkspaceName'))]",
+            "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName'))]",
             "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/master')]"
           ],
           "apiVersion": "2017-05-01-preview",
           "properties": {
             "name": "[variables('diagnosticSettingsName')]",
-            "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsworkspaceName'))]",
+            "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
             "logs": [
               {
                 "category": "SQLSecurityAuditEvents",
