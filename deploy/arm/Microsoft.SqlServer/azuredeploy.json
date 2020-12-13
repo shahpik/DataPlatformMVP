@@ -116,9 +116,9 @@
         {
           "type": "databases/providers/diagnosticSettings",
           "name": "[concat('master/microsoft.insights/',variables('diagnosticSettingsName'))]",
+          "location": "[resourceGroup().location]",
           "dependsOn": [
             "[parameters('sqlServerName')]",
-            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName'))]",
             "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/master')]",
             "[concat('Microsoft.Sql/servers/', parameters('sqlServerName'), '/databases/', parameters('databaseName'))]"
           ],
