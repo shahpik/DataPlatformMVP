@@ -44,19 +44,30 @@ jobs:
                 scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |
-                  echo "Creating Key Vault for Data"
-                  az keyvault create \
-                    --location $(Region) \
-                    --name $(KeyVaultData) \
-                    --resource-group $(ResourceGroup) \
-                    --enable-soft-delete false
 
-                  echo "Creating Key Vault for Machine Learning Service"
-                  az keyvault create \
-                    --location $(region) \
-                    --name $(KeyVaultML) \
-                    --resource-group $(ResourceGroup) \
-                    --enable-soft-delete false
+                 echo "Creating Key Vault for Data platform"
+                 az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "KeyVault" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.KeyVault/azuredeploy.json" \
+                        --parameters \
+                            keyVaultName=$(KeyVaultData) \
+                            objectId=$(sqlAzureADGroupObjectID) \
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            logAnalyticsDiagnosticName='akvdiagnostics'
+
+
+                 echo "Creating Key Vault for Machine Learning Service"
+                 az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "KeyVaultML" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.KeyVault/azuredeploy.json" \
+                        --parameters \
+                            keyVaultName=$(KeyVaultML) \
+                            objectId=$(sqlAzureADGroupObjectID) \
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            logAnalyticsDiagnosticName='akvmldiagnostics'
+
 
             - task: AzureCLI@2
               displayName: Create SQL Server
@@ -172,41 +183,41 @@ jobs:
                           -g $(resourceGroup) \
                           --kind StorageV2 --hns
 
-            - task: AzureCLI@2
-              displayName: Create Event Hub
-              inputs:
-                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                      echo "Creating Event Hub Namespace"
-                      az eventhubs namespace create \
-                        --name $(eventHubNameSpace) \
-                        --resource-group $(resourceGroup) \
-                        --location $(region)
+#            - task: AzureCLI@2
+#              displayName: Create Event Hub
+#              inputs:
+#                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+#                    scriptType: bash
+#                    scriptLocation: inlineScript
+#                    inlineScript: |
+#                      echo "Creating Event Hub Namespace"
+#                      az eventhubs namespace create \
+#                        --name $(eventHubNameSpace) \
+#                        --resource-group $(resourceGroup) \
+#                        --location $(region)
 
-                      echo "Creating Event Hub"
-                      az eventhubs eventhub create \
-                        --name $(eventHubName) \
-                        --resource-group $(resourceGroup) \
-                        --namespace-name $(eventHubNameSpace)
+#                      echo "Creating Event Hub"
+#                      az eventhubs eventhub create \
+#                        --name $(eventHubName) \
+#                        --resource-group $(resourceGroup) \
+#                        --namespace-name $(eventHubNameSpace)
 
-            - task: AzureCLI@2
-              displayName: 'Create IOT Hub'
-              inputs:
-                      azureSubscription: '${{ parameters.azureServiceConnection }}'
-                      scriptType: 'bash'
-                      scriptLocation: 'inlineScript'
-                      inlineScript: |
-                        echo "Creating IOT Hub"
-                        az deployment group create \
-                          --resource-group $(resourceGroup) \
-                          --name "IOTHub" \
-                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.IotHub/azuredeploy.json" \
-                          --parameters \
-                                iotHubName=$(iotHubName) \
-                                location=$(region) \
-                                storageAccountName=$(iotHubStorageAccountName)
+#            - task: AzureCLI@2
+#              displayName: 'Create IOT Hub'
+#              inputs:
+#                      azureSubscription: '${{ parameters.azureServiceConnection }}'
+#                      scriptType: 'bash'
+#                      scriptLocation: 'inlineScript'
+#                      inlineScript: |
+#                        echo "Creating IOT Hub"
+#                        az deployment group create \
+#                          --resource-group $(resourceGroup) \
+#                          --name "IOTHub" \
+#                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.IotHub/azuredeploy.json" \
+#                          --parameters \
+#                                iotHubName=$(iotHubName) \
+#                                location=$(region) \
+#                                storageAccountName=$(iotHubStorageAccountName)
 
   
 
