@@ -51,7 +51,7 @@ jobs:
                         --name "KeyVault" \
                         --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.KeyVault/azuredeploy.json" \
                         --parameters \
-                            keyVaultName=$(KeyVaultData)0001 \
+                            keyVaultName=$(KeyVaultData)001 \
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                             logAnalyticsDiagnosticName='akvdiagnostics'
@@ -63,7 +63,7 @@ jobs:
                         --name "KeyVaultML" \
                         --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.KeyVault/azuredeploy.json" \
                         --parameters \
-                            keyVaultName=$(KeyVaultML)0001 \
+                            keyVaultName=$(KeyVaultML)001 \
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                             logAnalyticsDiagnosticName='akvmldiagnostics'
