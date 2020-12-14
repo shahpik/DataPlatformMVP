@@ -53,7 +53,8 @@ jobs:
                         --parameters \
                             keyVaultName=$(KeyVaultData)0001 \
                             objectId=$(sqlAzureADGroupObjectID) \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            logAnalyticsDiagnosticName='akvdiagnostics'
 
 
                  echo "Creating Key Vault for Machine Learning Service"
@@ -64,7 +65,8 @@ jobs:
                         --parameters \
                             keyVaultName=$(KeyVaultML)0001 \
                             objectId=$(sqlAzureADGroupObjectID) \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            logAnalyticsDiagnosticName='akvmldiagnostics'
 
 
             - task: AzureCLI@2

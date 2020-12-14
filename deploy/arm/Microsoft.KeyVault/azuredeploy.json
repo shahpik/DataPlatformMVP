@@ -104,10 +104,16 @@
       "metadata": {
         "description": "Name of the log analytics workspace to send logs."
       }
+    },
+    "logAnalyticsDiagnosticName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the log analytics diagnostic name."
+      }
     }
   },
   "variables": {
-    "diagSettingName": "akvdiagnostics"
+    "diagSettingName": "[parameters('logAnalyticsDiagnosticName')]"
   },
   "resources": [
     {
