@@ -122,6 +122,7 @@
         "enabledForDeployment": "[parameters('enableVaultForDeployment')]",
         "enabledForTemplateDeployment": "[parameters('enableVaultForTemplateDeployment')]",
         "enabledForDiskEncryption": "[parameters('enableVaultForDiskEncryption')]",
+        "enableSoftDelete": false,
         "tenantId": "[parameters('tenantId')]",
         "accessPolicies": [
           {
