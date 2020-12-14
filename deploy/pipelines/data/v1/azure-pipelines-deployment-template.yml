@@ -45,6 +45,7 @@ jobs:
                 scriptLocation: inlineScript
                 inlineScript: |
 
+                 echo "Creating Key Vault for Data platform"
                  az deployment group create \
                         --resource-group $(resourceGroup) \
                         --name "KeyVault" \
@@ -54,19 +55,17 @@ jobs:
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
 
-                  echo "Creating Key Vault for Data"
-                  az keyvault create \
-                    --location $(Region) \
-                    --name $(KeyVaultData) \
-                    --resource-group $(ResourceGroup) \
-                    --enable-soft-delete false
 
-                  echo "Creating Key Vault for Machine Learning Service"
-                  az keyvault create \
-                    --location $(region) \
-                    --name $(KeyVaultML) \
-                    --resource-group $(ResourceGroup) \
-                    --enable-soft-delete false
+                 echo "Creating Key Vault for Machine Learning Service"
+                 az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "KeyVaultML" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.KeyVault/azuredeploy.json" \
+                        --parameters \
+                            keyVaultName=$(KeyVaultML)0001 \
+                            objectId=$(sqlAzureADGroupObjectID) \
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
+
 
             - task: AzureCLI@2
               displayName: Create SQL Server
