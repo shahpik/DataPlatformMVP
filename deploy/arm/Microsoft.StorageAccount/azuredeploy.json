@@ -91,24 +91,24 @@
       "properties": {
         "storageAccountId": null,
         "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "logs": [
+        ],
         "metrics": [
           {
-            "category": "AllMetrics",
-            "enabled": true,
+            "enabled": false,
             "retentionPolicy": {
-              "enabled": true,
-              "days": 365
-            }
-          }
-        ],
-        "logs": [
-          {
-            "category": "Audit",
-            "enabled": true
+              "days": 0,
+              "enabled": false
+            },
+            "category": "Capacity"
           },
           {
-            "category": "Requests",
-            "enabled": true
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 0,
+              "enabled": false
+            },
+            "category": "Transaction"
           }
         ],
         "logAnalyticsDestinationType": "Dedicated"
