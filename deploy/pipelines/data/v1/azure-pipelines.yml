@@ -22,4 +22,4 @@ stages:
     parameters:
       azureServiceConnection: '$(AzureServiceConnection_TC)'
       environment: 'Test'
-      resourceTagsFilePath: '$(Pipeline.Workspace)/deploy/pipelines/data/v1/resourceTags.json'
+      resourceTagsFilePath: '$(Pipeline.Workspace)/deploy/pipelines/data/v1/resourceTags/env.test.json'
