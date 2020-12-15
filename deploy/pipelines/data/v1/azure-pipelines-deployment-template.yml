@@ -20,6 +20,24 @@ jobs:
                       --name $(ResourceGroup) \
                       --location $(Region)
 
+                      
+            - task: AzureCLI@2
+              displayName: Create Azure Data Lake Store Gen2
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Data Lake Store Gen2"
+                      az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "StorageAccount" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StorageAccount/azuredeploy.json" \
+                        --parameters \
+                            storageAccountName=$(dataLakeStorageAccountName) \
+                            isHnsEnabled='true'
+                            storageSku='Standard_RAGRS'
+
             - task: AzureCLI@2
               displayName: Create Azure Data Factory
               inputs:
