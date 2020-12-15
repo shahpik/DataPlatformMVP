@@ -178,10 +178,14 @@ jobs:
                     scriptLocation: inlineScript
                     inlineScript: |
                       echo "Creating Data Lake Store Gen2"
-                      az storage account create \
-                          -n $(dataLakeStorageAccountName) \
-                          -g $(resourceGroup) \
-                          --kind StorageV2 --hns
+                      az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "StorageAccount" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StorageAccount/azuredeploy.json" \
+                        --parameters \
+                            storageAccountName=$(dataLakeStorageAccountName) \
+                            isHnsEnabled='true'
+                            storageSku='Standard_RAGRS'
 
 #            - task: AzureCLI@2
 #              displayName: Create Event Hub
