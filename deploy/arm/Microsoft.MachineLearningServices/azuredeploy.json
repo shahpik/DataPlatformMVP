@@ -427,7 +427,7 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
       ],
-      "tags": "[parameters('tagValues')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "encryption": {
           "services": {
@@ -453,7 +453,7 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
       ],
-      "tags": "[parameters('tagValues')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "tenantId": "[variables('tenantId')]",
         "sku": {
