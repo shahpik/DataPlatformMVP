@@ -22,7 +22,7 @@ jobs:
       
 
             - task: AzureCLI@2
-              displayName: Create Azure Data Lake Store Gen2
+              displayName: Create Data Lake Store Gen2
               inputs:
                     azureSubscription: '${{ parameters.azureServiceConnection }}'
                     scriptType: bash
@@ -40,7 +40,7 @@ jobs:
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
 
             - task: AzureCLI@2
-              displayName: Create Azure Data Factory
+              displayName: Create Data Factory
               inputs:
                 azureSubscription: '${{ parameters.azureServiceConnection }}'
                 scriptType: bash
@@ -57,7 +57,7 @@ jobs:
                             dataFactoryIRName=$(dataFactoryIntegrationRuntime)
 
             - task: AzureCLI@2
-              displayName: Create Azure Key Vaults
+              displayName: Create Key Vaults
               inputs:
                 azureSubscription: '${{ parameters.azureServiceConnection }}'
                 scriptType: bash
