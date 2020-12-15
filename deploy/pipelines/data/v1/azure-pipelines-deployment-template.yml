@@ -203,7 +203,8 @@ jobs:
                         --parameters \
                             storageAccountName=$(dataLakeStorageAccountName) \
                             isHnsEnabled='true'
-                            storageSku='Standard_RAGRS'
+                            storageSku='Standard_RAGRS' \
+                            logAnalyticsworkspaceName=$(logAnalyticsWorkspaceName)
 
 #            - task: AzureCLI@2
 #              displayName: Create Event Hub
