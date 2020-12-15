@@ -18,8 +18,25 @@ jobs:
                   echo "Creating Resource Group"
                   az group create \
                       --name $(ResourceGroup) \
-                      --location $(Region) 
-      
+                      --location $(Region)
+                      
+            - task: AzureCLI@2
+              displayName: Create Data Factory
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Azure Data Factory '$(dataFactoryName)'"
+                  az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "AzureDataFactory" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
+                        --parameters \
+                            dataFactoryName=$(dataFactoryName) \
+                            workspaceName=$(logAnalyticsWorkspaceName) \
+                            dataFactoryIRName=$(dataFactoryIntegrationRuntime) \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}      
 
             - task: AzureCLI@2
               displayName: Create Data Lake Store Gen2
@@ -40,24 +57,6 @@ jobs:
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                             resourceTags=@${{parameters.resourceTagsFilePath}}
                             
-
-            - task: AzureCLI@2
-              displayName: Create Data Factory
-              inputs:
-                azureSubscription: '${{ parameters.azureServiceConnection }}'
-                scriptType: bash
-                scriptLocation: inlineScript
-                inlineScript: |
-                  echo "Creating Azure Data Factory '$(dataFactoryName)'"
-                  az deployment group create \
-                        --resource-group $(resourceGroup) \
-                        --name "AzureDataFactory" \
-                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
-                        --parameters \
-                            dataFactoryName=$(dataFactoryName) \
-                            workspaceName=$(logAnalyticsWorkspaceName) \
-                            dataFactoryIRName=$(dataFactoryIntegrationRuntime) \
-                            resourceTags=@${{parameters.resourceTagsFilePath}}
 
             - task: AzureCLI@2
               displayName: Create Key Vaults
