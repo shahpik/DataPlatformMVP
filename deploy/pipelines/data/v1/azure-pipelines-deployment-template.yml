@@ -19,6 +19,7 @@ jobs:
                   az group create \
                       --name $(ResourceGroup) \
                       --location $(Region)
+                      --tags $(Pipeline.Workspace)/deploy/arm/resourceTags.json
       
 
             - task: AzureCLI@2
