@@ -1,5 +1,15 @@
-
-  {
-    "Environment": "Test",
-    "CostCode": "Data"
-  }
+{
+  "Environment": "Test",
+  "ManageBy": "Data",
+  "Engineering": "Team",
+  "OwnerEmail": "DataManagement@boroondara.vic.gov.au",
+  "Department": "TNT",
+  "Tier": "Data",
+  "ProjectName": "DataPlatformMVP",
+  "ProjectVersion": "1.0",
+  "Disaster Recovery": "No",
+  "CreatedBy": "Deloitte",
+  "DataProfile": "Internal",
+  "Region":"AustraliaEast",
+  "StartDate": 20201215
+}
