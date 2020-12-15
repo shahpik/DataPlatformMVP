@@ -87,7 +87,9 @@
       "name": "[concat(parameters('storageAccountName'), '/Microsoft.Insights/',variables('diagSettingName'))]",
       "apiVersion": "2017-05-01-preview",
       "location": "[parameters('location')]",
-      "dependsOn": [],
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      ],
       "properties": {
         "storageAccountId": null,
         "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
