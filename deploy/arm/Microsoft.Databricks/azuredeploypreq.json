@@ -52,6 +52,9 @@
       "metadata": {
         "description": "Private Subnet NSG"
       }
+    },
+    "resourceTags": {
+      "type": "object"
     }
   },
   "variables": {
@@ -62,6 +65,7 @@
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "name": "[concat(parameters('existingVnetName'), '/', parameters('customPublicSubnetName'))]",
       "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "addressPrefix": "[parameters('customPublicSubNetAddressPrefixes')]",
         "networkSecurityGroup": {
@@ -86,6 +90,7 @@
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "name": "[concat(parameters('existingVnetName'), '/', parameters('customPrivateSubnetName'))]",
       "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "addressPrefix": "[parameters('customPrivateSubNetAddressPrefixes')]",
         "networkSecurityGroup": {
@@ -110,6 +115,7 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[parameters('customPublicSubNetNSGName')]",
       "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {}
     },
     {
@@ -117,6 +123,7 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[parameters('customPrivateSubNetNSGName')]",
       "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {}
     }
   ]

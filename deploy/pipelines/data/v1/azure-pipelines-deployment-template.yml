@@ -56,7 +56,8 @@ jobs:
                         --parameters \
                             dataFactoryName=$(dataFactoryName) \
                             workspaceName=$(logAnalyticsWorkspaceName) \
-                            dataFactoryIRName=$(dataFactoryIntegrationRuntime)
+                            dataFactoryIRName=$(dataFactoryIntegrationRuntime) \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}
 
             - task: AzureCLI@2
               displayName: Create Key Vaults
@@ -75,7 +76,8 @@ jobs:
                             keyVaultName=$(KeyVaultData) \
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                            logAnalyticsDiagnosticName='akvdiagnostics'
+                            logAnalyticsDiagnosticName='akvdiagnostics' \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
                  echo "Creating Key Vault for Machine Learning Service"
@@ -87,7 +89,8 @@ jobs:
                             keyVaultName=$(KeyVaultML) \
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                            logAnalyticsDiagnosticName='akvmldiagnostics'
+                            logAnalyticsDiagnosticName='akvmldiagnostics' \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
             - task: AzureCLI@2
@@ -111,7 +114,8 @@ jobs:
                             adTenantID=$(sqlAzureADGroupTenantID) \
                             adObjectID=$(sqlAzureADGroupObjectID) \
                             adLogin=$(sqlAzureADGroupLoginName) \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
 
@@ -135,7 +139,8 @@ jobs:
                                 customPublicSubNetNSGName=$(databricksPublicNSGName) \
                                 customPrivateSubnetName=$(databricksPrivateSubNet) \
                                 customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
-                                customPrivateSubNetNSGName=$(databricksPrivateNSGName)
+                                customPrivateSubNetNSGName=$(databricksPrivateNSGName) \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
                         echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
                         az deployment group create \
@@ -146,7 +151,8 @@ jobs:
                                 workspaceName=$(databricksWorkspaceName) \
                                 customVirtualNetworkId=$(cobVnetExistingResourceId) \
                                 customPublicSubnetName=$(databricksPublicSubNet) \
-                                customPrivateSubnetName=$(databricksPrivateSubNet)
+                                customPrivateSubnetName=$(databricksPrivateSubNet) \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
             - task: AzureCLI@2
@@ -189,7 +195,8 @@ jobs:
                               applicationInsightsName=$(mlAppInsightsName) \
                               storageAccountOption='new' \
                               storageAccountResourceGroupName=$(resourceGroup) \
-                              storageAccountName=$(mlStorageAccountName)
+                              storageAccountName=$(mlStorageAccountName) \
+                              resourceTags=@${{parameters.resourceTagsFilePath}}
 
 #            - task: AzureCLI@2
 #              displayName: Create Event Hub

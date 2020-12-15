@@ -25,13 +25,6 @@
         "description": "Specifies the sku, also referred as 'edition' of the Azure Machine Learning workspace."
       }
     },
-    "tagValues": {
-      "type": "object",
-      "defaultValue": {},
-      "metadata": {
-        "description": "Tags for workspace, will also be populated if provisioning new dependent resources."
-      }
-    },
     "storageAccountOption": {
       "type": "string",
       "defaultValue": "new",
@@ -319,6 +312,9 @@
       "metadata": {
         "description": "Name of the log analytics workspace to send logs."
       }
+    },
+    "resourceTags": {
+      "type": "object"
     }
   },
   "variables": {
@@ -362,7 +358,7 @@
       "apiVersion": "2020-06-01",
       "name": "[parameters('vnetName')]",
       "location": "[parameters('location')]",
-      "tags": "[parameters('tagValues')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": "[parameters('addressPrefixes')]"
@@ -480,7 +476,7 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
       ],
-      "tags": "[parameters('tagValues')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "adminUserEnabled": true,
         "networkRuleSet": "[if(equals(parameters('containerRegistryBehindVNet'), 'true'), variables('networkRuleSetBehindVNet'), json('null'))]"
@@ -493,7 +489,7 @@
       "name": "[parameters('applicationInsightsName')]",
       "location": "[if(equals(parameters('location'),'australiasoutheast'),'australiaeast',parameters('location'))]",
       "kind": "web",
-      "tags": "[parameters('tagValues')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "Application_Type": "web"
       }
@@ -503,6 +499,7 @@
       "apiVersion": "2020-09-01-preview",
       "name": "[parameters('workspaceName')]",
       "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
       "sku": {
         "tier": "[parameters('sku')]",
         "name": "[parameters('sku')]"
@@ -516,7 +513,6 @@
         "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]",
         "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]"
       ],
-      "tags": "[parameters('tagValues')]",
       "properties": {
         "friendlyName": "[parameters('workspaceName')]",
         "storageAccount": "[variables('storageAccount')]",
@@ -612,7 +608,7 @@
               "apiVersion": "2020-06-01",
               "name": "[concat(parameters('privateEndpointName'))]",
               "location": "[parameters('vnetLocation')]",
-              "tags": "[parameters('tagValues')]",
+              "tags": "[parameters('resourceTags')]",
               "properties": {
                 "privateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'AutoApproval'), variables('defaultPEConnections'), json('null'))]",
                 "manualPrivateLinkServiceConnections": "[if(equals(parameters('privateEndpointType'), 'ManualApproval'), variables('defaultPEConnections'), json('null'))]",
@@ -630,7 +626,7 @@
               "dependsOn": [
                 "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
               ],
-              "tags": "[parameters('tagValues')]",
+              "tags": "[parameters('resourceTags')]",
               "properties": {}
             },
             {
@@ -642,7 +638,7 @@
               "dependsOn": [
                 "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
               ],
-              "tags": "[parameters('tagValues')]",
+              "tags": "[parameters('resourceTags')]",
               "properties": {}
             },
             {
@@ -655,7 +651,7 @@
                 "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
                 "privatelink.api.azureml.ms"
               ],
-              "tags": "[parameters('tagValues')]",
+              "tags": "[parameters('resourceTags')]",
               "properties": {
                 "virtualNetwork": {
                   "id": "[variables('vnet')]"
@@ -673,7 +669,7 @@
                 "[resourceid(parameters('vnetResourceGroupName'), 'Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]",
                 "privatelink.notebooks.azure.net"
               ],
-              "tags": "[parameters('tagValues')]",
+              "tags": "[parameters('resourceTags')]",
               "properties": {
                 "virtualNetwork": {
                   "id": "[variables('vnet')]"

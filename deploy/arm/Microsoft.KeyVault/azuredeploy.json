@@ -110,6 +110,9 @@
       "metadata": {
         "description": "Name of the log analytics diagnostic name."
       }
+    },
+    "resourceTags": {
+      "type": "object"
     }
   },
   "variables": {
@@ -121,9 +124,7 @@
       "name": "[parameters('keyVaultName')]",
       "apiVersion": "2019-09-01",
       "location": "[parameters('location')]",
-      "tags": {
-        "displayName": "Key Vault with logging"
-      },
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "enabledForDeployment": "[parameters('enableVaultForDeployment')]",
         "enabledForTemplateDeployment": "[parameters('enableVaultForTemplateDeployment')]",

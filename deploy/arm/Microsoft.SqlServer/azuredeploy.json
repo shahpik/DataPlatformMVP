@@ -74,6 +74,9 @@
       "metadata": {
         "description": "Name of the log analytics workspace to send logs."
       }
+    },
+    "resourceTags": {
+      "type": "object"
     }
   },
   "variables": {
@@ -85,9 +88,7 @@
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2020-02-02-preview",
       "location": "[parameters('location')]",
-      "tags": {
-        "displayName": "SqlServer"
-      },
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "administratorLogin": "[parameters('sqlAdministratorLogin')]",
         "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
@@ -99,9 +100,7 @@
           "type": "databases",
           "apiVersion": "2020-02-02-preview",
           "location": "[parameters('location')]",
-          "tags": {
-            "displayName": "Database"
-          },
+          "tags": "[parameters('resourceTags')]",
           "properties": {
             "edition": "[parameters('databaseEdition')]",
             "collation": "[parameters('databaseCollation')]",

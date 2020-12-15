@@ -26,6 +26,9 @@
       "metadata": {
         "description": "Number of days to retain data fatcory logs"
       }
+    },
+    "resourceTags": {
+      "type": "object"
     }
   },
   "functions": [],
@@ -38,6 +41,7 @@
       "apiVersion": "2020-03-01-preview",
       "name": "[parameters('workspaceName')]",
       "location": "[resourceGroup().location]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {
         "sku": {
           "name": "pergb2018"
@@ -53,6 +57,7 @@
       "apiVersion": "2018-06-01",
       "name": "[parameters('dataFactoryName')]",
       "location": "[resourceGroup().location]",
+      "tags": "[parameters('resourceTags')]",
       "identity": {
         "type": "SystemAssigned"
       },
@@ -131,7 +136,7 @@
         "typeProperties": {}
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DataFactory/factories',parameters('dataFactoryName'))]" 
+        "[resourceId('Microsoft.DataFactory/factories',parameters('dataFactoryName'))]"
 
       ]
     }
