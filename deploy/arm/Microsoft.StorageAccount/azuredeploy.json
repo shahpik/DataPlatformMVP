@@ -87,30 +87,28 @@
       "name": "[concat(parameters('storageAccountName'), '/Microsoft.Insights/',variables('diagSettingName'))]",
       "apiVersion": "2017-05-01-preview",
       "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
-      ],
+      "dependsOn": [],
       "properties": {
         "storageAccountId": null,
         "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
-        "logs": [
-        ],
         "metrics": [
           {
-            "enabled": false,
-            "retentionPolicy": {
-              "days": 0,
-              "enabled": false
-            },
-            "category": "Capacity"
-          },
-          {
+            "category": "AllMetrics",
             "enabled": true,
             "retentionPolicy": {
-              "days": 0,
-              "enabled": false
-            },
-            "category": "Transaction"
+              "enabled": true,
+              "days": 365
+            }
+          }
+        ],
+        "logs": [
+          {
+            "category": "Audit",
+            "enabled": true
+          },
+          {
+            "category": "Requests",
+            "enabled": true
           }
         ],
         "logAnalyticsDestinationType": "Dedicated"
