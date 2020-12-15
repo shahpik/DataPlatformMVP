@@ -19,7 +19,24 @@ jobs:
                   az group create \
                       --name $(ResourceGroup) \
                       --location $(Region)
-      
+                      
+            - task: AzureCLI@2
+              displayName: Create Data Factory
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Azure Data Factory '$(dataFactoryName)'"
+                  az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "AzureDataFactory" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
+                        --parameters \
+                            dataFactoryName=$(dataFactoryName) \
+                            workspaceName=$(logAnalyticsWorkspaceName) \
+                            dataFactoryIRName=$(dataFactoryIntegrationRuntime) \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}      
 
             - task: AzureCLI@2
               displayName: Create Data Lake Store Gen2
@@ -37,24 +54,9 @@ jobs:
                             storageAccountName=$(dataLakeStorageAccountName) \
                             isHnsEnabled='true' \
                             storageSku='Standard_RAGRS' \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
-
-            - task: AzureCLI@2
-              displayName: Create Data Factory
-              inputs:
-                azureSubscription: '${{ parameters.azureServiceConnection }}'
-                scriptType: bash
-                scriptLocation: inlineScript
-                inlineScript: |
-                  echo "Creating Azure Data Factory '$(dataFactoryName)'"
-                  az deployment group create \
-                        --resource-group $(resourceGroup) \
-                        --name "AzureDataFactory" \
-                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
-                        --parameters \
-                            dataFactoryName=$(dataFactoryName) \
-                            workspaceName=$(logAnalyticsWorkspaceName) \
-                            dataFactoryIRName=$(dataFactoryIntegrationRuntime)
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}
+                            
 
             - task: AzureCLI@2
               displayName: Create Key Vaults
@@ -73,7 +75,8 @@ jobs:
                             keyVaultName=$(KeyVaultData) \
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                            logAnalyticsDiagnosticName='akvdiagnostics'
+                            logAnalyticsDiagnosticName='akvdiagnostics' \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
                  echo "Creating Key Vault for Machine Learning Service"
@@ -85,7 +88,8 @@ jobs:
                             keyVaultName=$(KeyVaultML) \
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                            logAnalyticsDiagnosticName='akvmldiagnostics'
+                            logAnalyticsDiagnosticName='akvmldiagnostics' \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
             - task: AzureCLI@2
@@ -109,7 +113,8 @@ jobs:
                             adTenantID=$(sqlAzureADGroupTenantID) \
                             adObjectID=$(sqlAzureADGroupObjectID) \
                             adLogin=$(sqlAzureADGroupLoginName) \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
 
@@ -144,7 +149,8 @@ jobs:
                                 workspaceName=$(databricksWorkspaceName) \
                                 customVirtualNetworkId=$(cobVnetExistingResourceId) \
                                 customPublicSubnetName=$(databricksPublicSubNet) \
-                                customPrivateSubnetName=$(databricksPrivateSubNet)
+                                customPrivateSubnetName=$(databricksPrivateSubNet) \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
             - task: AzureCLI@2
@@ -187,7 +193,8 @@ jobs:
                               applicationInsightsName=$(mlAppInsightsName) \
                               storageAccountOption='new' \
                               storageAccountResourceGroupName=$(resourceGroup) \
-                              storageAccountName=$(mlStorageAccountName)
+                              storageAccountName=$(mlStorageAccountName) \
+                              resourceTags=@${{parameters.resourceTagsFilePath}}
 
 #            - task: AzureCLI@2
 #              displayName: Create Event Hub

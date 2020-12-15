@@ -49,6 +49,9 @@
       "metadata": {
         "description": "Name of the log analytics workspace to send logs."
       }
+    },
+    "resourceTags": {
+      "type": "object"
     }
   },
   "variables": {
@@ -63,6 +66,7 @@
       "location": "[resourceGroup().location]",
       "name": "[variables('storageAccountName')]",
       "kind": "StorageV2",
+      "tags": "[parameters('resourceTags')]",
       "sku": {
         "name": "[parameters('storageSku')]"
       },
