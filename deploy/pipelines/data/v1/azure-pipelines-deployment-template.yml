@@ -38,7 +38,7 @@ jobs:
                             isHnsEnabled='true' \
                             storageSku='Standard_RAGRS' \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                            resourceTags=@$(Pipeline.Workspace)/deploy/arm/resourceTags.json | convertfrom-json
+                            resourceTags=@$(Pipeline.Workspace)/deploy/arm/resourceTags.json
 
             - task: AzureCLI@2
               displayName: Create Data Factory
