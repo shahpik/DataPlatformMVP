@@ -35,7 +35,7 @@ jobs:
                         --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StorageAccount/azuredeploy.json" \
                         --parameters \
                             storageAccountName=$(dataLakeStorageAccountName) \
-                            isHnsEnabled='true'
+                            isHnsEnabled='true' \
                             storageSku='Standard_RAGRS' \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
 
