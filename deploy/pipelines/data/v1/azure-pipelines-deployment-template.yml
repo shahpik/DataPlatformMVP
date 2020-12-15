@@ -18,8 +18,7 @@ jobs:
                   echo "Creating Resource Group"
                   az group create \
                       --name $(ResourceGroup) \
-                      --location $(Region) \
-                      --tags @$(Pipeline.Workspace)/deploy/arm/resourceTags.json | convertfrom-json
+                      --location $(Region) 
       
 
             - task: AzureCLI@2
@@ -38,7 +37,8 @@ jobs:
                             storageAccountName=$(dataLakeStorageAccountName) \
                             isHnsEnabled='true' \
                             storageSku='Standard_RAGRS' \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName)
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            resourceTags=@$(Pipeline.Workspace)/deploy/arm/resourceTags.json | convertfrom-json
 
             - task: AzureCLI@2
               displayName: Create Data Factory
