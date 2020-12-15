@@ -19,7 +19,7 @@ jobs:
                   az group create \
                       --name $(ResourceGroup) \
                       --location $(Region) \
-                      --tags @$(Pipeline.Workspace)/deploy/arm/resourceTags.json
+                      --tags @$(Pipeline.Workspace)/deploy/arm/resourceTags.json | convertfrom-json
       
 
             - task: AzureCLI@2
