@@ -49,11 +49,17 @@
     },
     "resourceTags": {
       "type": "object"
+    },
+    "managedResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the managed Resource Group controlled by the workspace"
+      }
     }
   },
   "variables": {
-    "managedResourceGroupId": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('managedResourceGroupName'))]",
-    "managedResourceGroupName": "[concat('databricks-rg-', parameters('workspaceName'), '-', uniqueString(parameters('workspaceName'), resourceGroup().id))]"
+    "managedResourceGroupId": "[concat(subscription().id, '/resourceGroups/', variables('managedResourceGroup'))]",
+    "managedResourceGroup": "[parameters('managedResourceGroupName')]"
   },
   "resources": [
     {

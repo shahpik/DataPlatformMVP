@@ -16,9 +16,14 @@ jobs:
                 scriptLocation: inlineScript
                 inlineScript: |
                   echo "Creating Resource Group"
-                  az group create \
-                      --name $(ResourceGroup) \
-                      --location $(Region)
+                  az deployment sub create \
+                    --location $(Region) \
+                    --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.ResourceGroups/azuredeploy.json" \
+                    --parameters \
+                        resourceGroupName=$(ResourceGroup) \
+                        resourceGroupLocation=$(Region) \
+                        resourceTags=@${{parameters.resourceTagsFilePath}}
+
                       
             - task: AzureCLI@2
               displayName: Create Data Factory
@@ -53,7 +58,7 @@ jobs:
                         --parameters \
                             storageAccountName=$(dataLakeStorageAccountName) \
                             isHnsEnabled='true' \
-                            storageSku='Standard_RAGRS' \
+                            storageSku='Standard_LRS' \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                             resourceTags=@${{parameters.resourceTagsFilePath}}
                             
@@ -117,7 +122,6 @@ jobs:
                             resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
-
             - task: AzureCLI@2
               displayName: 'Create Databricks'
               inputs:
@@ -138,7 +142,8 @@ jobs:
                                 customPublicSubNetNSGName=$(databricksPublicNSGName) \
                                 customPrivateSubnetName=$(databricksPrivateSubNet) \
                                 customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
-                                customPrivateSubNetNSGName=$(databricksPrivateNSGName)
+                                customPrivateSubNetNSGName=$(databricksPrivateNSGName) \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
                         echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
                         az deployment group create \
@@ -150,6 +155,7 @@ jobs:
                                 customVirtualNetworkId=$(cobVnetExistingResourceId) \
                                 customPublicSubnetName=$(databricksPublicSubNet) \
                                 customPrivateSubnetName=$(databricksPrivateSubNet) \
+                                managedResourceGroupName=$(databricksManagedResourceGroup) \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
 
 

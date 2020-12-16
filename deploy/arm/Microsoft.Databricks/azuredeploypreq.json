@@ -12,7 +12,7 @@
     "existingVnetName": {
       "type": "string",
       "metadata": {
-        "description": "Existing Vnet Name"
+        "description": "Existing VNET Name"
       }
     },
     "customPublicSubnetName": {
@@ -32,26 +32,29 @@
     "customPrivateSubNetAddressPrefixes": {
       "type": "string",
       "metadata": {
-        "description": "Private Subnet CIDR"
+        "description": "Private Databricks Subnet CIDR"
       }
     },
     "customPublicSubNetAddressPrefixes": {
       "type": "string",
       "metadata": {
-        "description": "Public Subnet CIDR"
+        "description": "Public Databricks Subnet CIDR"
       }
     },
     "customPublicSubNetNSGName": {
       "type": "string",
       "metadata": {
-        "description": "Public Subnet NSG"
+        "description": "Public Databricks Subnet NSG"
       }
     },
     "customPrivateSubNetNSGName": {
       "type": "string",
       "metadata": {
-        "description": "Private Subnet NSG"
+        "description": "Private Databricks Subnet NSG"
       }
+    },
+    "resourceTags": {
+      "type": "object"
     }
   },
   "variables": {
@@ -110,6 +113,7 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[parameters('customPublicSubNetNSGName')]",
       "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {}
     },
     {
@@ -117,6 +121,7 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[parameters('customPrivateSubNetNSGName')]",
       "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
       "properties": {}
     }
   ]
