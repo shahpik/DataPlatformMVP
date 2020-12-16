@@ -16,9 +16,18 @@ jobs:
                 scriptLocation: inlineScript
                 inlineScript: |
                   echo "Creating Resource Group"
-                  az group create \
-                      --name $(ResourceGroup) \
-                      --location $(Region)
+
+                  az deployment create \
+                    --location $(Region) \
+                    --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.ResourceGroups/azuredeploy.json" \
+                    --parameters \
+                        resourceGroupName=$(ResourceGroup) \
+                        resourceGroupLocation=$(Region) \
+                        resourceTags=@${{parameters.resourceTagsFilePath}}
+
+ #                 az group create \
+ #                     --name $(ResourceGroup) \
+ #                     --location $(Region)
 
             - task: AzureCLI@2
               displayName: 'Create Databricks'
