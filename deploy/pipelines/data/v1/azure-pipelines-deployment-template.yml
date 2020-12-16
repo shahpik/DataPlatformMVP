@@ -150,6 +150,7 @@ jobs:
                                 customVirtualNetworkId=$(cobVnetExistingResourceId) \
                                 customPublicSubnetName=$(databricksPublicSubNet) \
                                 customPrivateSubnetName=$(databricksPrivateSubNet) \
+                                managedResourceGroupName=$(databricksManagedResourceGroup) \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
