@@ -39,14 +39,14 @@ jobs:
                           --parameters \
                               workspaceName=$(mlWorkspaceName) \
                               location=$(region) \
-                              keyVaultOption='existing' \
+                              keyVaultNewOrExisting='existing' \
                               keyVaultResourceGroupName=$(resourceGroup) \
                               keyVaultName=$(keyVaultML) \
                               logAnalyticsworkspaceName=$(logAnalyticsWorkspaceName) \
-                              applicationInsightsOption='new' \
+                              applicationInsightsNewOrExisting='new' \
                               applicationInsightsResourceGroupName=$(resourceGroup) \
                               applicationInsightsName=$(mlAppInsightsName) \
-                              storageAccountOption='new' \
+                              storageAccountNewOrExisting='new' \
                               storageAccountResourceGroupName=$(resourceGroup) \
                               storageAccountName=$(mlStorageAccountName) \
                               resourceTags=@${{parameters.resourceTagsFilePath}}
