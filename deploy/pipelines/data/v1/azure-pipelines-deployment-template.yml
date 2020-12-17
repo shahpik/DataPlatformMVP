@@ -33,8 +33,9 @@ jobs:
                 scriptLocation: inlineScript
                 inlineScript: |
                   echo "Creating Stream Analytics Job"
-                  az deployment sub create \
-                    --location $(Region) \
+                   az deployment group create \
+                    --resource-group $(resourceGroup) \
+                    --name "StreamAnalyticsJob" \
                     --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StreamAnalytics/azuredeploy.json" \
                     --parameters \
                         location=$(Region) \
