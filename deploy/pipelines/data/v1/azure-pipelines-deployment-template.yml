@@ -174,7 +174,7 @@ jobs:
                           --parameters \
                               workspaceName=$(mlWorkspaceName) \
                               location=$(region) \
-                              keyVaultOption='new' \
+                              keyVaultOption='existing' \
                               keyVaultResourceGroupName=$(resourceGroup) \
                               keyVaultName=$(keyVaultML) \
                               logAnalyticsworkspaceName=$(logAnalyticsWorkspaceName) \
