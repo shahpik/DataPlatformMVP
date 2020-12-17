@@ -242,7 +242,7 @@
         },
         "hbiWorkspace": "[parameters('confidential_data')]"
       }
-    }
+    },
     {
       "type": "Microsoft.MachineLearningServices/workspaces/providers/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",

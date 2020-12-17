@@ -24,6 +24,33 @@ jobs:
                         resourceGroupLocation=$(Region) \
                         resourceTags=@${{parameters.resourceTagsFilePath}}
 
+            - task: AzureCLI@2
+              displayName: Create Machine Learning WS
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                        echo "Creating Machine Learning Workspace"
+                        az deployment group create \
+                          --resource-group "$(resourceGroup)" \
+                          --name "MachineLearningServices" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.MachineLearningServices/azuredeploy.json" \
+                          --parameters \
+                              workspaceName=$(mlWorkspaceName) \
+                              location=$(region) \
+                              keyVaultOption='existing' \
+                              keyVaultResourceGroupName=$(resourceGroup) \
+                              keyVaultName=$(keyVaultML) \
+                              logAnalyticsworkspaceName=$(logAnalyticsWorkspaceName) \
+                              applicationInsightsOption='new' \
+                              applicationInsightsResourceGroupName=$(resourceGroup) \
+                              applicationInsightsName=$(mlAppInsightsName) \
+                              storageAccountOption='new' \
+                              storageAccountResourceGroupName=$(resourceGroup) \
+                              storageAccountName=$(mlStorageAccountName) \
+                              resourceTags=@${{parameters.resourceTagsFilePath}}
+
                       
             - task: AzureCLI@2
               displayName: Create Data Factory
@@ -158,33 +185,6 @@ jobs:
                                 managedResourceGroupName=$(databricksManagedResourceGroup) \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
 
-
-            - task: AzureCLI@2
-              displayName: Create Machine Learning WS
-              inputs:
-                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                        echo "Creating Machine Learning Workspace"
-                        az deployment group create \
-                          --resource-group "$(resourceGroup)" \
-                          --name "MachineLearningServices" \
-                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.MachineLearningServices/azuredeploy.json" \
-                          --parameters \
-                              workspaceName=$(mlWorkspaceName) \
-                              location=$(region) \
-                              keyVaultOption='existing' \
-                              keyVaultResourceGroupName=$(resourceGroup) \
-                              keyVaultName=$(keyVaultML) \
-                              logAnalyticsworkspaceName=$(logAnalyticsWorkspaceName) \
-                              applicationInsightsOption='new' \
-                              applicationInsightsResourceGroupName=$(resourceGroup) \
-                              applicationInsightsName=$(mlAppInsightsName) \
-                              storageAccountOption='new' \
-                              storageAccountResourceGroupName=$(resourceGroup) \
-                              storageAccountName=$(mlStorageAccountName) \
-                              resourceTags=@${{parameters.resourceTagsFilePath}}
 
 #            - task: AzureCLI@2
 #              displayName: Create Event Hub
