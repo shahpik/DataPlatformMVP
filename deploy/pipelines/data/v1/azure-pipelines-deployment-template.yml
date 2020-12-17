@@ -158,7 +158,6 @@ jobs:
                                 managedResourceGroupName=$(databricksManagedResourceGroup) \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
 
-
             - task: AzureCLI@2
               displayName: Create Machine Learning WS
               inputs:
@@ -166,15 +165,6 @@ jobs:
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
-                        echo "Creating Machine Learning Subnet for Private EndPoint with prefix $(mlPrivateSubNetAddressPrefix)"
-                        az network vnet subnet create \
-                            --name $(MlPrivateSubNetName) \
-                            --resource-group $(cobVnetExistingRG) \
-                            --address-prefixes $(mlPrivateSubNetAddressPrefix) \
-                            --vnet-name $(cobVnetExisting) \
-                            --disable-private-endpoint-network-policies true
-
-
                         echo "Creating Machine Learning Workspace"
                         az deployment group create \
                           --resource-group "$(resourceGroup)" \
@@ -183,24 +173,18 @@ jobs:
                           --parameters \
                               workspaceName=$(mlWorkspaceName) \
                               location=$(region) \
-                              privateEndpointType='AutoApproval' \
-                              vnetName=$(cobVnetExisting) \
-                              vnetOption='existing' \
-                              vnetResourceGroupName=$(cobVnetExistingRG) \
-                              subnetName=$(mlPrivateSubNetName) \
-                              subnetOption='existing' \
-                              privateEndpointName=$(mlPrivateEndPoint) \
-                              keyVaultOption='new' \
+                              keyVaultNewOrExisting='existing' \
                               keyVaultResourceGroupName=$(resourceGroup) \
                               keyVaultName=$(keyVaultML) \
                               logAnalyticsworkspaceName=$(logAnalyticsWorkspaceName) \
-                              applicationInsightsOption='new' \
+                              applicationInsightsNewOrExisting='new' \
                               applicationInsightsResourceGroupName=$(resourceGroup) \
                               applicationInsightsName=$(mlAppInsightsName) \
-                              storageAccountOption='new' \
+                              storageAccountNewOrExisting='new' \
                               storageAccountResourceGroupName=$(resourceGroup) \
                               storageAccountName=$(mlStorageAccountName) \
                               resourceTags=@${{parameters.resourceTagsFilePath}}
+
 
 #            - task: AzureCLI@2
 #              displayName: Create Event Hub
