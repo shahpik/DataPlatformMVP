@@ -24,7 +24,24 @@ jobs:
                         resourceGroupLocation=$(Region) \
                         resourceTags=@${{parameters.resourceTagsFilePath}}
 
-
+            - task: AzureCLI@2
+              displayName: Create Stream Analytics Job
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Stream Analytics Job"
+                   az deployment group create \
+                    --resource-group $(resourceGroup) \
+                    --name "StreamAnalyticsJob" \
+                    --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StreamAnalytics/azuredeploy.json" \
+                    --parameters \
+                        location=$(Region) \
+                        streamAnalyticsJobName=$(StreamAnalyticsJobName) \
+                        resourceTags=@${{parameters.resourceTagsFilePath}} \
+                        logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                        numberOfStreamingUnits=1
 
             - task: AzureCLI@2
               displayName: Create Data Factory
@@ -207,24 +224,7 @@ jobs:
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
-            - task: AzureCLI@2
-              displayName: Create Stream Analytics Job
-              inputs:
-                azureSubscription: '${{ parameters.azureServiceConnection }}'
-                scriptType: bash
-                scriptLocation: inlineScript
-                inlineScript: |
-                  echo "Creating Stream Analytics Job"
-                   az deployment group create \
-                    --resource-group $(resourceGroup) \
-                    --name "StreamAnalyticsJob" \
-                    --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StreamAnalytics/azuredeploy.json" \
-                    --parameters \
-                        location=$(Region) \
-                        streamAnalyticsJobName=$(StreamAnalyticsJobName) \
-                        resourceTags=@${{parameters.resourceTagsFilePath}} \
-                        logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                        numberOfStreamingUnits=1
+
 
 
 
