@@ -1,0 +1,90 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "cognitiveServiceName": {
+      "type": "string",
+      "metadata": {
+        "description": "That name is the name of the service"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "resourceTags": {
+      "type": "object"
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "S0",
+      "allowedValues": [
+        "S0"
+      ]
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the log analytics workspace to send logs."
+      }
+    }
+  },
+  "variables": {
+    "diagnosticSettingsName": "csdiagnostics"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2017-04-18",
+      "name": "[parameters('cognitiveServiceName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "sku": {
+        "name": "[parameters('sku')]"
+      },
+      "kind": "CognitiveServices",
+      "properties": {
+        "statisticsEnabled": false
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "[concat(parameters('cognitiveServiceName'), '/', 'Microsoft.Insights/', variables('diagnosticSettingsName'))]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[parameters('cognitiveServiceName')]"
+      ],
+      "properties": {
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": true,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 0
+            }
+          }
+        ],
+        "logs": [
+          {
+            "category": "Audit",
+            "enabled": true
+          },
+          {
+            "category": "Trace",
+            "enabled": true
+          },
+          {
+            "category": "RequestResponse",
+            "enabled": true
+          }
+        ]
+      }
+    }
+  ]
+}
