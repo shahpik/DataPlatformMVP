@@ -26,6 +26,27 @@ jobs:
 
 
             - task: AzureCLI@2
+              displayName: Create Event Hub
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Event Hub Namespace"
+
+                      az deployment group create \
+                            --resource-group $(resourceGroup) \
+                            --name "EventHubs" \
+                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.EventHubs/azuredeploy.json" \
+                            --parameters \
+                                eventHubNameSpaceName=$(eventHubNameSpace) \
+                                eventHubName=$(eventHubName) \
+                                location=$(Region) \
+                                eventHubSku='Standard' \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
+
+
+            - task: AzureCLI@2
               displayName: Create Stream Analytics Job
               inputs:
                 azureSubscription: '${{ parameters.azureServiceConnection }}'
@@ -206,24 +227,6 @@ jobs:
                               resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
-#            - task: AzureCLI@2
-#              displayName: Create Event Hub
-#              inputs:
-#                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-#                    scriptType: bash
-#                    scriptLocation: inlineScript
-#                    inlineScript: |
-#                      echo "Creating Event Hub Namespace"
-#                      az eventhubs namespace create \
-#                        --name $(eventHubNameSpace) \
-#                        --resource-group $(resourceGroup) \
-#                        --location $(region)
-
-#                      echo "Creating Event Hub"
-#                      az eventhubs eventhub create \
-#                        --name $(eventHubName) \
-#                        --resource-group $(resourceGroup) \
-#                        --namespace-name $(eventHubNameSpace)
 
 #            - task: AzureCLI@2
 #              displayName: 'Create IOT Hub'
