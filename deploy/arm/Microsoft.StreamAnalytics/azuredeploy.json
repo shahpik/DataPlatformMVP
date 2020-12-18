@@ -85,7 +85,7 @@
         "[parameters('streamAnalyticsJobName')]"
       ],
       "properties": {
-        "workspaceId": "[parameters('logAnalyticsWorkspaceName')]",
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
         "metrics": [
           {
             "category": "AllMetrics",
