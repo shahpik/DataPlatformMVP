@@ -24,7 +24,16 @@
       "allowedValues": [
         "S0"
       ]
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the log analytics workspace to send logs."
+      }
     }
+  },
+  "variables": {
+    "diagnosticSettingsName": "csdiagnostics"
   },
   "resources": [
     {
@@ -39,6 +48,42 @@
       "kind": "CognitiveServices",
       "properties": {
         "statisticsEnabled": false
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "[concat(parameters('cognitiveServiceName'), '/', 'Microsoft.Insights/', variables('diagnosticSettingsName'))]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[parameters('cognitiveServiceName')]"
+      ],
+      "properties": {
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": true,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 0
+            }
+          }
+        ],
+        "logs": [
+          {
+            "category": "Audit",
+            "enabled": true
+          },
+          {
+            "category": "Trace",
+            "enabled": true
+          },
+          {
+            "category": "RequestResponse",
+            "enabled": true
+          }
+        ]
       }
     }
   ]

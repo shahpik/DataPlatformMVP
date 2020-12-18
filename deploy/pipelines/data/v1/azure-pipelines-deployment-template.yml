@@ -41,6 +41,7 @@ jobs:
                             --parameters \
                                 cognitiveServiceName=$(cognitiveServiceName) \
                                 location=$(Region) \
+                                logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
