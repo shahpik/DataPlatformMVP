@@ -24,7 +24,8 @@ jobs:
                         resourceGroupLocation=$(Region) \
                         resourceTags=@${{parameters.resourceTagsFilePath}}
 
-                      
+
+
             - task: AzureCLI@2
               displayName: Create Data Factory
               inputs:
@@ -185,25 +186,46 @@ jobs:
                               storageAccountName=$(mlStorageAccountName) \
                               resourceTags=@${{parameters.resourceTagsFilePath}}
 
+            - task: AzureCLI@2
+              displayName: Create Event Hub
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      echo "Creating Event Hub Namespace"
 
-#            - task: AzureCLI@2
-#              displayName: Create Event Hub
-#              inputs:
-#                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-#                    scriptType: bash
-#                    scriptLocation: inlineScript
-#                    inlineScript: |
-#                      echo "Creating Event Hub Namespace"
-#                      az eventhubs namespace create \
-#                        --name $(eventHubNameSpace) \
-#                        --resource-group $(resourceGroup) \
-#                        --location $(region)
+                      az deployment group create \
+                            --resource-group $(resourceGroup) \
+                            --name "EventHubs" \
+                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.EventHubs/azuredeploy.json" \
+                            --parameters \
+                                eventHubNameSpaceName=$(eventHubNameSpace) \
+                                eventHubName=$(eventHubName) \
+                                location=$(Region) \
+                                eventHubSku='Standard' \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
-#                      echo "Creating Event Hub"
-#                      az eventhubs eventhub create \
-#                        --name $(eventHubName) \
-#                        --resource-group $(resourceGroup) \
-#                        --namespace-name $(eventHubNameSpace)
+
+            - task: AzureCLI@2
+              displayName: Create Stream Analytics Job
+              inputs:
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "Creating Stream Analytics Job"
+                   az deployment group create \
+                    --resource-group $(resourceGroup) \
+                    --name "StreamAnalyticsJob" \
+                    --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StreamAnalytics/azuredeploy.json" \
+                    --parameters \
+                        location=$(Region) \
+                        streamAnalyticsJobName=$(StreamAnalyticsJobName) \
+                        resourceTags=@${{parameters.resourceTagsFilePath}} \
+                        numberOfStreamingUnits=1
+
+
 
 #            - task: AzureCLI@2
 #              displayName: 'Create IOT Hub'
