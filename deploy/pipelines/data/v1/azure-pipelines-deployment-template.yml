@@ -31,6 +31,7 @@ jobs:
                 azureSubscription: '${{ parameters.azureServiceConnection }}'
                 scriptType: bash
                 scriptLocation: inlineScript
+                errorActionPreference: stop
                 inlineScript: |
                   echo "Creating Azure Data Factory '$(dataFactoryName)'"
                   az deployment group create \
@@ -49,6 +50,7 @@ jobs:
                     azureSubscription: '${{ parameters.azureServiceConnection }}'
                     scriptType: bash
                     scriptLocation: inlineScript
+                    errorActionPreference: continue
                     inlineScript: |
                       echo "Creating Data Lake Store Gen2"
                       az deployment group create \
@@ -69,6 +71,7 @@ jobs:
                 azureSubscription: '${{ parameters.azureServiceConnection }}'
                 scriptType: bash
                 scriptLocation: inlineScript
+                errorActionPreference: stop
                 inlineScript: |
 
                  echo "Creating Key Vault for Data platform"
@@ -103,6 +106,7 @@ jobs:
                     azureSubscription: '${{ parameters.azureServiceConnection }}'
                     scriptType: bash
                     scriptLocation: inlineScript
+                    errorActionPreference: continue
                     inlineScript: |
                       echo "Creating SQL Server '$(sqlServerName)'"
                       az deployment group create \
@@ -128,6 +132,7 @@ jobs:
                       azureSubscription: '${{ parameters.azureServiceConnection }}'
                       scriptType: 'bash'
                       scriptLocation: 'inlineScript'
+                      errorActionPreference: continue
                       inlineScript: |
                         echo "Creating Prerequisites for Databricks workspace '$(databricksWorkspaceName)'"
                         echo "Provisioning subnets in existing VNET $(cobVnetExisting)"
@@ -164,6 +169,7 @@ jobs:
                     azureSubscription: '${{ parameters.azureServiceConnection }}'
                     scriptType: bash
                     scriptLocation: inlineScript
+                    errorActionPreference: continue
                     inlineScript: |
                         echo "Creating Machine Learning Workspace"
                         az deployment group create \
@@ -191,6 +197,7 @@ jobs:
                 azureSubscription: '${{ parameters.azureServiceConnection }}'
                 scriptType: bash
                 scriptLocation: inlineScript
+                errorActionPreference: continue
                 inlineScript: |
                   echo "Creating Stream Analytics Job"
                    az deployment group create \
@@ -211,6 +218,7 @@ jobs:
                     azureSubscription: '${{ parameters.azureServiceConnection }}'
                     scriptType: bash
                     scriptLocation: inlineScript
+                    errorActionPreference: continue
                     inlineScript: |
                       echo "Creating Event Hub Namespace"
 
