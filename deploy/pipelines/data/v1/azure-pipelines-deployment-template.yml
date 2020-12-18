@@ -43,26 +43,6 @@ jobs:
                             workspaceName=$(logAnalyticsWorkspaceName) \
                             dataFactoryIRName=$(dataFactoryIntegrationRuntime) \
                             resourceTags=@${{parameters.resourceTagsFilePath}}      
-
-            - task: AzureCLI@2
-              displayName: Create Data Lake Store Gen2
-              inputs:
-                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    errorActionPreference: continue
-                    inlineScript: |
-                      echo "Creating Data Lake Store Gen2"
-                      az deployment group create \
-                        --resource-group $(resourceGroup) \
-                        --name "StorageAccount" \
-                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StorageAccount/azuredeploy.json" \
-                        --parameters \
-                            storageAccountName=$(dataLakeStorageAccountName) \
-                            isHnsEnabled='true' \
-                            storageSku='Standard_LRS' \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                            resourceTags=@${{parameters.resourceTagsFilePath}}
                             
 
             - task: AzureCLI@2
@@ -97,6 +77,26 @@ jobs:
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                             logAnalyticsDiagnosticName='akvmldiagnostics' \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}
+
+            - task: AzureCLI@2
+              displayName: Create Data Lake Store Gen2
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    errorActionPreference: continue
+                    inlineScript: |
+                      echo "Creating Data Lake Store Gen2"
+                      az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "StorageAccount" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StorageAccount/azuredeploy.json" \
+                        --parameters \
+                            storageAccountName=$(dataLakeStorageAccountName) \
+                            isHnsEnabled='true' \
+                            storageSku='Standard_LRS' \
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                             resourceTags=@${{parameters.resourceTagsFilePath}}
 
 
