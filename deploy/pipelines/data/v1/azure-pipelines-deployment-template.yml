@@ -223,6 +223,7 @@ jobs:
                         location=$(Region) \
                         streamAnalyticsJobName=$(StreamAnalyticsJobName) \
                         resourceTags=@${{parameters.resourceTagsFilePath}} \
+                        logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                         numberOfStreamingUnits=1
 
 
