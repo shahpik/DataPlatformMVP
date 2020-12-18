@@ -24,6 +24,25 @@ jobs:
                         resourceGroupLocation=$(Region) \
                         resourceTags=@${{parameters.resourceTagsFilePath}}
 
+            - task: AzureCLI@2
+              displayName: Create Cognitive Service
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    errorActionPreference: continue
+                    inlineScript: |
+                      echo "Creating Cognitive Service"
+
+                      az deployment group create \
+                            --resource-group $(resourceGroup) \
+                            --name "CognitiveService" \
+                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.CognitiveService/azuredeploy.json" \
+                            --parameters \
+                                cognitiveServiceName=$(cognitiveServiceName) \
+                                location=$(Region) \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
+
 
             - task: AzureCLI@2
               displayName: Create Data Factory
@@ -232,9 +251,6 @@ jobs:
                                 location=$(Region) \
                                 eventHubSku='Standard' \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
-
-
-
 
 
 
