@@ -33,7 +33,7 @@ jobs:
                     inlineScript: |
                         echo "Create Subnet for Service Endpoint"
                         az network vnet subnet create \
-                          --vnet-name $(MlPrivateSubNetName) \
+                          --vnet-name $(cobVnetExisting) \
                           --resource-group $(cobVnetExistingRG) \
                           --name $(MlPrivateSubNetName) \
                           --address-prefix $(mlPrivateSubNetAddressPrefix) \
