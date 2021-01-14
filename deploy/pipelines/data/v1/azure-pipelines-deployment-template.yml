@@ -24,6 +24,21 @@ jobs:
                         resourceGroupLocation=$(Region) \
                         resourceTags=@${{parameters.resourceTagsFilePath}}
 
+            - task: AzureCLI@2
+              displayName: Create Service Endpoint Subnet
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                        echo "Create Subnet for Service Endpoint"
+                        az network vnet subnet create \
+                          --vnet-name $(MlPrivateSubNetName) \
+                          --resource-group $(cobVnetExistingRG) \
+                          --name $(MlPrivateSubNetName) \
+                          --address-prefix $(mlPrivateSubNetAddressPrefix) \
+                          --service-endpoints Microsoft.Storage
+
 
             - task: AzureCLI@2
               displayName: Create Data Factory
