@@ -37,7 +37,7 @@ jobs:
                           --resource-group $(cobVnetExistingRG) \
                           --name $(MlPrivateSubNetName) \
                           --address-prefix $(mlPrivateSubNetAddressPrefix) \
-                          --service-endpoints Microsoft.Storage
+                          --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault
 
 
             - task: AzureCLI@2
