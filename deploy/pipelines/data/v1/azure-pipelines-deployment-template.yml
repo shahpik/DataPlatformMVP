@@ -103,7 +103,10 @@ jobs:
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                             logAnalyticsDiagnosticName='akvdiagnostics' \
-                            resourceTags=@${{parameters.resourceTagsFilePath}}
+                            resourceTags=@${{parameters.resourceTagsFilePath}} \
+                            vnetName=$(cobVnetExisting) \
+                            vnetResourceGroupName=$(cobVnetExistingRG) \
+                            subnetName=$(MlPrivateSubNetName)
 
 
                  echo "Creating Key Vault for Machine Learning Service"

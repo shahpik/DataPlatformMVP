@@ -111,6 +111,24 @@
         "description": "Name of the log analytics diagnostic name."
       }
     },
+    "vnetResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing Vnet RG name"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing VNET name"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing subnet name"
+      }
+    },
     "resourceTags": {
       "type": "object"
     }
@@ -144,6 +162,15 @@
         "sku": {
           "name": "[parameters('vaultSku')]",
           "family": "A"
+        },
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "defaultAction": "Deny",
+          "virtualNetworkRules": [
+            {
+              "id": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+            }
+          ]
         }
       },
       "resources": [
