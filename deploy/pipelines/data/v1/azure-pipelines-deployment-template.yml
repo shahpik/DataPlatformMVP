@@ -35,8 +35,8 @@ jobs:
                         az network vnet subnet create \
                           --vnet-name $(cobVnetExisting) \
                           --resource-group $(cobVnetExistingRG) \
-                          --name $(MlPrivateSubNetName) \
-                          --address-prefix $(mlPrivateSubNetAddressPrefix) \
+                          --name $(ServiceEndPointSubNetName) \
+                          --address-prefix $(ServiceEndPointSubNetAddressPrefix) \
                           --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault
 
 
@@ -61,7 +61,7 @@ jobs:
                             resourceTags=@${{parameters.resourceTagsFilePath}} \
                             vnetName=$(cobVnetExisting) \
                             vnetResourceGroupName=$(cobVnetExistingRG) \
-                            subnetName=$(MlPrivateSubNetName)
+                            subnetName=$(ServiceEndPointSubNetName)
 
 
             - task: AzureCLI@2
@@ -106,7 +106,7 @@ jobs:
                             resourceTags=@${{parameters.resourceTagsFilePath}} \
                             vnetName=$(cobVnetExisting) \
                             vnetResourceGroupName=$(cobVnetExistingRG) \
-                            subnetName=$(MlPrivateSubNetName)
+                            subnetName=$(ServiceEndPointSubNetName)
 
 
                  echo "Creating Key Vault for Machine Learning Service"
@@ -122,7 +122,7 @@ jobs:
                             resourceTags=@${{parameters.resourceTagsFilePath}} \
                             vnetName=$(cobVnetExisting) \
                             vnetResourceGroupName=$(cobVnetExistingRG) \
-                            subnetName=$(MlPrivateSubNetName)
+                            subnetName=$(ServiceEndPointSubNetName)
 
 
             - task: AzureCLI@2
@@ -151,7 +151,7 @@ jobs:
                             resourceTags=@${{parameters.resourceTagsFilePath}} \
                             vnetName=$(cobVnetExisting) \
                             vnetResourceGroupName=$(cobVnetExistingRG) \
-                            subnetName=$(MlPrivateSubNetName)
+                            subnetName=$(ServiceEndPointSubNetName)
 
 
             - task: AzureCLI@2
