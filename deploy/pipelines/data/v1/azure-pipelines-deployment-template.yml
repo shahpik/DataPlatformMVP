@@ -119,8 +119,10 @@ jobs:
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                             logAnalyticsDiagnosticName='akvmldiagnostics' \
-                            resourceTags=@${{parameters.resourceTagsFilePath}}
-
+                            resourceTags=@${{parameters.resourceTagsFilePath}} \
+                            vnetName=$(cobVnetExisting) \
+                            vnetResourceGroupName=$(cobVnetExistingRG) \
+                            subnetName=$(MlPrivateSubNetName)
 
 
             - task: AzureCLI@2
