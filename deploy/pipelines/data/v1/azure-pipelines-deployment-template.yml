@@ -40,6 +40,7 @@ jobs:
                           --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault
 
 
+
             - task: AzureCLI@2
               displayName: Create Data Lake Store Gen2
               inputs:
@@ -259,7 +260,11 @@ jobs:
                                 eventHubName=$(eventHubName) \
                                 location=$(Region) \
                                 eventHubSku='Standard' \
-                                resourceTags=@${{parameters.resourceTagsFilePath}}
+                                resourceTags=@${{parameters.resourceTagsFilePath}} \
+                                vnetName=$(cobVnetExisting) \
+                                vnetResourceGroupName=$(cobVnetExistingRG) \
+                                subnetName=$(ServiceEndPointSubNetName)
+
 
             - task: AzureCLI@2
               displayName: Create Cognitive Service

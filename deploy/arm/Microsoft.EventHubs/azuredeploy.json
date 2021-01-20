@@ -28,12 +28,32 @@
       "metadata": {
         "description": "Specifies the messaging tier for Event Hub Namespace."
       }
-    },  
+    },
+    "vnetResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing Vnet RG name"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing VNET name"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing subnet name"
+      }
+    },
     "resourceTags": {
       "type": "object"
     }
   },
-  "variables": {},
+  "variables": {
+    "namespaceNetworkRuleSetName": "[concat(parameters('eventhubNamespaceName'), concat('/', 'default'))]"
+  },
   "resources": [
     {
       "type": "Microsoft.EventHub/namespaces",
@@ -49,6 +69,26 @@
       "properties": {
         "isAutoInflateEnabled": false,
         "maximumThroughputUnits": 0
+      }
+    },
+    {
+      "apiVersion": "2018-01-01-preview",
+      "name": "[variables('namespaceNetworkRuleSetName')]",
+      "type": "Microsoft.EventHub/namespaces/networkruleset",
+      "dependsOn": [
+        "[concat('Microsoft.EventHub/namespaces/', parameters('eventhubNamespaceName'))]"
+      ],
+      "properties": {
+        "virtualNetworkRules": [
+          {
+            "subnet": {
+              "id": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+            },
+            "ignoreMissingVnetServiceEndpoint": false
+          }
+        ],
+        "trustedServiceAccessEnabled": true,
+        "defaultAction": "Deny"
       }
     },
     {
