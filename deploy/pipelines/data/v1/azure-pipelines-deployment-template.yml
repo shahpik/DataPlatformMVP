@@ -259,7 +259,10 @@ jobs:
                                 eventHubName=$(eventHubName) \
                                 location=$(Region) \
                                 eventHubSku='Standard' \
-                                resourceTags=@${{parameters.resourceTagsFilePath}}
+                                resourceTags=@${{parameters.resourceTagsFilePath}} \
+                                vnetName=$(cobVnetExisting) \
+                                vnetResourceGroupName=$(cobVnetExistingRG) \
+                                subnetName=$(ServiceEndPointSubNetName)
 
             - task: AzureCLI@2
               displayName: Create Cognitive Service
