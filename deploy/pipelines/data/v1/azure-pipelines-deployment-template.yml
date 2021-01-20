@@ -39,29 +39,6 @@ jobs:
                           --address-prefix $(ServiceEndPointSubNetAddressPrefix) \
                           --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault
 
-            - task: AzureCLI@2
-              displayName: Create Event Hub
-              inputs:
-                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    errorActionPreference: continue
-                    inlineScript: |
-                      echo "Creating Event Hub Namespace"
-
-                      az deployment group create \
-                            --resource-group $(resourceGroup) \
-                            --name "EventHubs" \
-                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.EventHubs/azuredeploy.json" \
-                            --parameters \
-                                eventHubNameSpaceName=$(eventHubNameSpace) \
-                                eventHubName=$(eventHubName) \
-                                location=$(Region) \
-                                eventHubSku='Standard' \
-                                resourceTags=@${{parameters.resourceTagsFilePath}} \
-                                vnetName=$(cobVnetExisting) \
-                                vnetResourceGroupName=$(cobVnetExistingRG) \
-                                subnetName=$(ServiceEndPointSubNetName)
 
 
             - task: AzureCLI@2
@@ -262,6 +239,31 @@ jobs:
                         resourceTags=@${{parameters.resourceTagsFilePath}} \
                         logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                         numberOfStreamingUnits=1
+
+
+            - task: AzureCLI@2
+              displayName: Create Event Hub
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    errorActionPreference: continue
+                    inlineScript: |
+                      echo "Creating Event Hub Namespace"
+
+                      az deployment group create \
+                            --resource-group $(resourceGroup) \
+                            --name "EventHubs" \
+                            --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.EventHubs/azuredeploy.json" \
+                            --parameters \
+                                eventHubNameSpaceName=$(eventHubNameSpace) \
+                                eventHubName=$(eventHubName) \
+                                location=$(Region) \
+                                eventHubSku='Standard' \
+                                resourceTags=@${{parameters.resourceTagsFilePath}} \
+                                vnetName=$(cobVnetExisting) \
+                                vnetResourceGroupName=$(cobVnetExistingRG) \
+                                subnetName=$(ServiceEndPointSubNetName)
 
 
             - task: AzureCLI@2
