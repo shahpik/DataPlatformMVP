@@ -52,6 +52,24 @@
     },
     "resourceTags": {
       "type": "object"
+    },
+    "vnetResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing Vnet RG name"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing VNET name"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing subnet name"
+      }
     }
   },
   "variables": {
@@ -83,7 +101,18 @@
           }
         },
         "isHnsEnabled": "[parameters('isHnsEnabled')]",
-        "supportsHttpsTrafficOnly": true
+        "supportsHttpsTrafficOnly": true,
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [
+            {
+              "id": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]",
+              "action": "Allow",
+              "state": "Succeeded"
+            }
+          ],
+          "defaultAction": "Deny"
+        }
       }
     },
     {

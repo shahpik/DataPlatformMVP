@@ -24,6 +24,45 @@ jobs:
                         resourceGroupLocation=$(Region) \
                         resourceTags=@${{parameters.resourceTagsFilePath}}
 
+            - task: AzureCLI@2
+              displayName: Create Service Endpoint Subnet
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                        echo "Create Subnet for Service Endpoint"
+                        az network vnet subnet create \
+                          --vnet-name $(cobVnetExisting) \
+                          --resource-group $(cobVnetExistingRG) \
+                          --name $(ServiceEndPointSubNetName) \
+                          --address-prefix $(ServiceEndPointSubNetAddressPrefix) \
+                          --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault
+
+
+            - task: AzureCLI@2
+              displayName: Create Data Lake Store Gen2
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    errorActionPreference: continue
+                    inlineScript: |
+                      echo "Creating Data Lake Store Gen2"
+                      az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "StorageAccount" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StorageAccount/azuredeploy.json" \
+                        --parameters \
+                            storageAccountName=$(dataLakeStorageAccountName) \
+                            isHnsEnabled='true' \
+                            storageSku='Standard_LRS' \
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            resourceTags=@${{parameters.resourceTagsFilePath}} \
+                            vnetName=$(cobVnetExisting) \
+                            vnetResourceGroupName=$(cobVnetExistingRG) \
+                            subnetName=$(ServiceEndPointSubNetName)
+
 
             - task: AzureCLI@2
               displayName: Create Data Factory
@@ -64,7 +103,10 @@ jobs:
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                             logAnalyticsDiagnosticName='akvdiagnostics' \
-                            resourceTags=@${{parameters.resourceTagsFilePath}}
+                            resourceTags=@${{parameters.resourceTagsFilePath}} \
+                            vnetName=$(cobVnetExisting) \
+                            vnetResourceGroupName=$(cobVnetExistingRG) \
+                            subnetName=$(ServiceEndPointSubNetName)
 
 
                  echo "Creating Key Vault for Machine Learning Service"
@@ -77,27 +119,10 @@ jobs:
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                             logAnalyticsDiagnosticName='akvmldiagnostics' \
-                            resourceTags=@${{parameters.resourceTagsFilePath}}
-
-            - task: AzureCLI@2
-              displayName: Create Data Lake Store Gen2
-              inputs:
-                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    errorActionPreference: continue
-                    inlineScript: |
-                      echo "Creating Data Lake Store Gen2"
-                      az deployment group create \
-                        --resource-group $(resourceGroup) \
-                        --name "StorageAccount" \
-                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.StorageAccount/azuredeploy.json" \
-                        --parameters \
-                            storageAccountName=$(dataLakeStorageAccountName) \
-                            isHnsEnabled='true' \
-                            storageSku='Standard_LRS' \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                            resourceTags=@${{parameters.resourceTagsFilePath}}
+                            resourceTags=@${{parameters.resourceTagsFilePath}} \
+                            vnetName=$(cobVnetExisting) \
+                            vnetResourceGroupName=$(cobVnetExistingRG) \
+                            subnetName=$(ServiceEndPointSubNetName)
 
 
             - task: AzureCLI@2
@@ -123,7 +148,10 @@ jobs:
                             adObjectID=$(sqlAzureADGroupObjectID) \
                             adLogin=$(sqlAzureADGroupLoginName) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                            resourceTags=@${{parameters.resourceTagsFilePath}}
+                            resourceTags=@${{parameters.resourceTagsFilePath}} \
+                            vnetName=$(cobVnetExisting) \
+                            vnetResourceGroupName=$(cobVnetExistingRG) \
+                            subnetName=$(ServiceEndPointSubNetName)
 
 
             - task: AzureCLI@2
