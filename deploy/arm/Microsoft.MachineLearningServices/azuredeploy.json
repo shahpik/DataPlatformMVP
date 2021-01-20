@@ -282,19 +282,7 @@
         ],
         "metrics": [
           {
-            "category": "Run",
-            "enabled": true
-          },
-          {
-            "category": "Resource",
-            "enabled": true
-          },
-          {
-            "category": "Model",
-            "enabled": true
-          },
-          {
-            "category": "Quota",
+            "category": "AllMetrics",
             "enabled": true
           }
         ],
