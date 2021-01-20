@@ -35,13 +35,6 @@
         "description": "Existing Vnet RG name"
       }
     },
-    "vnetRuleName": {
-      "type": "string",
-      "defaultValue": "EHVNETRule",
-      "metadata": {
-        "description": "VNET rule name"
-      }
-    },
     "vnetName": {
       "type": "string",
       "metadata": {
@@ -58,7 +51,9 @@
       "type": "object"
     }
   },
-  "variables": {},
+  "variables": {
+    "namespaceNetworkRuleSetName": "[concat(parameters('eventhubNamespaceName'), concat('/', 'default'))]"
+  },
   "resources": [
     {
       "type": "Microsoft.EventHub/namespaces",
@@ -78,7 +73,7 @@
     },
     {
       "apiVersion": "2018-01-01-preview",
-      "name": "[parameters('vnetRuleName')]",
+      "name": "[variables('namespaceNetworkRuleSetName')]",
       "type": "Microsoft.EventHub/namespaces/networkruleset",
       "dependsOn": [
         "[concat('Microsoft.EventHub/namespaces/', parameters('eventhubNamespaceName'))]"
