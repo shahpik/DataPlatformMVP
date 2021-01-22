@@ -152,7 +152,8 @@ jobs:
                             resourceTags=@${{parameters.resourceTagsFilePath}} \
                             vnetName=$(cobVnetExisting) \
                             vnetResourceGroupName=$(cobVnetExistingRG) \
-                            subnetName=$(ServiceEndPointSubNetName)
+                            sqlSubnetName=$(ServiceEndPointSubNetName) \
+                            irSubnetName= $(IRServiceEndpointSubnetName)
 
 
             - task: AzureCLI@2
