@@ -81,11 +81,18 @@
         "description": "Existing Vnet RG name"
       }
     },
-    "vnetRuleName": {
+    "irVnetRuleName": {
+      "type": "string",
+      "defaultValue": "IRVNETRule",
+      "metadata": {
+        "description": "VNET rule name Integration runtime"
+      }
+    },
+    "sqlVnetRuleName": {
       "type": "string",
       "defaultValue": "SQLVNETRule",
       "metadata": {
-        "description": "VNET rule name"
+        "description": "VNET rule name for SQL server"
       }
     },
     "vnetName": {
@@ -94,10 +101,16 @@
         "description": "Existing VNET name"
       }
     },
-    "subnetName": {
+    "sqlSubnetName": {
       "type": "string",
       "metadata": {
-        "description": "Existing subnet name"
+        "description": "Existing subnet name of SQL Servrice Endpoint"
+      }
+    },
+    "irSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing subnet name of Integration Runtime Endpoint"
       }
     },
     "resourceTags": {
@@ -189,11 +202,23 @@
         },
         {
           "type": "Microsoft.Sql/servers/virtualNetworkRules",
-          "name": "[concat(parameters('sqlServerName'), '/', parameters('vnetRuleName'))]",
+          "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlVnetRuleName'))]",
           "apiVersion": "2015-05-01-preview",
           "scale": null,
           "properties": {
-            "virtualNetworkSubnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+            "virtualNetworkSubnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('sqlSubnetName'))]"
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
+          ]
+        },
+        {
+          "type": "Microsoft.Sql/servers/virtualNetworkRules",
+          "name": "[concat(parameters('sqlServerName'), '/', parameters('irVnetRuleName'))]",
+          "apiVersion": "2015-05-01-preview",
+          "scale": null,
+          "properties": {
+            "virtualNetworkSubnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('irSubnetName'))]"
           },
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
