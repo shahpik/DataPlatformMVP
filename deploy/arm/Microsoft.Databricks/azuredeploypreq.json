@@ -64,7 +64,7 @@
     }
   },
   "variables": {
-    "routeId": "[resourceId('Microsoft.Network/routeTables', parameters('routeTable'))]"
+    "routeId": "[parameters('routeTable')]"
   },
   "resources": [
     {

@@ -41,6 +41,36 @@ jobs:
                           --route-table $(routeTableName)
 
 
+            - task: AzureCLI@2
+              displayName: Create SQL Server
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    errorActionPreference: continue
+                    inlineScript: |
+                      echo "Creating SQL Server '$(sqlServerName)'"
+                      az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "SQLServer" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
+                        --parameters \
+                            sqlServerName=$(sqlServerName) \
+                            databaseName=$(sqlServerDataBaseName) \
+                            sqlAdministratorLogin=$(sqlServerAdminUserName) \
+                            sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
+                            location=$(region) \
+                            adTenantID=$(tenantID) \
+                            adObjectID=$(sqlAzureADGroupObjectID) \
+                            adLogin=$(sqlAzureADGroupLoginName) \
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            resourceTags=@${{parameters.resourceTagsFilePath}} \
+                            vnetName=$(cobVnetExisting) \
+                            vnetResourceGroupName=$(cobVnetExistingRG) \
+                            sqlSubnetName=$(ServiceEndPointSubNetName) \
+                            irSubnetName=$(IRServiceEndpointSubnetName
+
+
 
             - task: AzureCLI@2
               displayName: Create Data Lake Store Gen2
@@ -149,7 +179,7 @@ jobs:
                                 customPrivateSubnetName=$(databricksPrivateSubNet) \
                                 customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
                                 customPrivateSubNetNSGName=$(databricksPrivateNSGName) \
-                                routeTable=$(routeTableName) \
+                                routeTable="/subscriptions/1b851150-8708-42bd-b24e-e88984ca963d/resourceGroups/AUEVNW02-CS-RG/providers/Microsoft.Network/routeTables/AUERT01-TC-SPOKE" \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
 
                         echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
@@ -164,38 +194,6 @@ jobs:
                                 customPrivateSubnetName=$(databricksPrivateSubNet) \
                                 managedResourceGroupName=$(databricksManagedResourceGroup) \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
-
-
-            - task: AzureCLI@2
-              displayName: Create SQL Server
-              inputs:
-                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    errorActionPreference: continue
-                    inlineScript: |
-                      echo "Creating SQL Server '$(sqlServerName)'"
-                      az deployment group create \
-                        --resource-group $(resourceGroup) \
-                        --name "SQLServer" \
-                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
-                        --parameters \
-                            sqlServerName=$(sqlServerName) \
-                            databaseName=$(sqlServerDataBaseName) \
-                            sqlAdministratorLogin=$(sqlServerAdminUserName) \
-                            sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
-                            location=$(region) \
-                            adTenantID=$(tenantID) \
-                            adObjectID=$(sqlAzureADGroupObjectID) \
-                            adLogin=$(sqlAzureADGroupLoginName) \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                            resourceTags=@${{parameters.resourceTagsFilePath}} \
-                            vnetName=$(cobVnetExisting) \
-                            vnetResourceGroupName=$(cobVnetExistingRG) \
-                            sqlSubnetName=$(ServiceEndPointSubNetName) \
-                            irSubnetName=$(IRServiceEndpointSubnetName \
-                            dbrPrivSubnetName=$(databricksPrivateSubNet) \
-                            dbrPubSubnetName=$(databricksPublicSubNet)
 
 
             - task: AzureCLI@2

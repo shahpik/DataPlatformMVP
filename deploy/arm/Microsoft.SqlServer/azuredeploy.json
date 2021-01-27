@@ -127,18 +127,6 @@
         "description": "Existing subnet name of Integration Runtime Endpoint"
       }
     },
-    "dbrPrivSubnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "Existing private subnet name of data bricks Endpoint"
-      }
-    },
-    "dbrPubSubnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "Existing publc subnet name of data bricks Endpoint"
-      }
-    },
     "resourceTags": {
       "type": "object"
     }
@@ -245,30 +233,6 @@
           "scale": null,
           "properties": {
             "virtualNetworkSubnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('irSubnetName'))]"
-          },
-          "dependsOn": [
-            "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
-          ]
-        },
-        {
-          "type": "Microsoft.Sql/servers/virtualNetworkRules",
-          "name": "[concat(parameters('sqlServerName'), '/', parameters('dbrPrivVnetRuleName'))]",
-          "apiVersion": "2015-05-01-preview",
-          "scale": null,
-          "properties": {
-            "virtualNetworkSubnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('dbrPrivSubnetName'))]"
-          },
-          "dependsOn": [
-            "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
-          ]
-        },
-        {
-          "type": "Microsoft.Sql/servers/virtualNetworkRules",
-          "name": "[concat(parameters('sqlServerName'), '/', parameters('dbrPubVnetRuleName'))]",
-          "apiVersion": "2015-05-01-preview",
-          "scale": null,
-          "properties": {
-            "virtualNetworkSubnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('dbrPubSubnetName'))]"
           },
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
