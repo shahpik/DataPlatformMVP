@@ -68,7 +68,9 @@ jobs:
                             vnetName=$(cobVnetExisting) \
                             vnetResourceGroupName=$(cobVnetExistingRG) \
                             sqlSubnetName=$(ServiceEndPointSubNetName) \
-                            irSubnetName=$(IRServiceEndpointSubnetName
+                            irSubnetName=$(IRServiceEndpointSubnetName) \
+                            dbrPrivSubnetName=$(databricksPrivateSubNet) \
+                            dbrPubSubnetName=$(databricksPublicSubNet)
 
 
 
