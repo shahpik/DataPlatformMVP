@@ -178,7 +178,8 @@ jobs:
                                 customPrivateSubnetName=$(databricksPrivateSubNet) \
                                 customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
                                 customPrivateSubNetNSGName=$(databricksPrivateNSGName) \
-                                resourceTags=@${{parameters.resourceTagsFilePath}}
+                                resourceTags=@${{parameters.resourceTagsFilePath}} \
+                                routeTable=$(routeTableName)
 
                         echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
                         az deployment group create \
