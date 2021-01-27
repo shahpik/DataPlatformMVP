@@ -198,8 +198,7 @@
       },
       "dependsOn": [
         "[parameters('customPublicSubNetNSGName')]",
-        "[parameters('customPrivateSubNetNSGName')]",
-        "[variables('routeId')]"
+        "[parameters('customPrivateSubNetNSGName')]"
       ]
     },
     {
