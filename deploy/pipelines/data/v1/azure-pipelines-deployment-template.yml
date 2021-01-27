@@ -37,7 +37,8 @@ jobs:
                           --resource-group $(cobVnetExistingRG) \
                           --name $(ServiceEndPointSubNetName) \
                           --address-prefix $(ServiceEndPointSubNetAddressPrefix) \
-                          --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault
+                          --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault \
+                          --route-table $(routeTableName)
 
 
 
@@ -62,7 +63,8 @@ jobs:
                             resourceTags=@${{parameters.resourceTagsFilePath}} \
                             vnetName=$(cobVnetExisting) \
                             vnetResourceGroupName=$(cobVnetExistingRG) \
-                            subnetName=$(ServiceEndPointSubNetName)
+                            subnetName=$(ServiceEndPointSubNetName) \
+                            tenantId=$(TenantID)
 
 
             - task: AzureCLI@2
@@ -145,7 +147,7 @@ jobs:
                             sqlAdministratorLogin=$(sqlServerAdminUserName) \
                             sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
                             location=$(region) \
-                            adTenantID=$(sqlAzureADGroupTenantID) \
+                            adTenantID=$(TenantID) \
                             adObjectID=$(sqlAzureADGroupObjectID) \
                             adLogin=$(sqlAzureADGroupLoginName) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
