@@ -133,7 +133,7 @@ jobs:
                       azureSubscription: '${{ parameters.azureServiceConnection }}'
                       scriptType: 'bash'
                       scriptLocation: 'inlineScript'
-                      errorActionPreference: continue
+                      errorActionPreference: stop
                       inlineScript: |
                         echo "Creating Prerequisites for Databricks workspace '$(databricksWorkspaceName)'"
                         echo "Provisioning subnets in existing VNET $(cobVnetExisting)"
@@ -149,8 +149,8 @@ jobs:
                                 customPrivateSubnetName=$(databricksPrivateSubNet) \
                                 customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
                                 customPrivateSubNetNSGName=$(databricksPrivateNSGName) \
-                                resourceTags=@${{parameters.resourceTagsFilePath}} \
-                                routeTable=$(routeTableName)
+                                routeTable=$(routeTableName) \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
                         echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
                         az deployment group create \
@@ -185,7 +185,7 @@ jobs:
                             sqlAdministratorLogin=$(sqlServerAdminUserName) \
                             sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
                             location=$(region) \
-                            adTenantID=$(TenantID) \
+                            adTenantID=$(tenantID) \
                             adObjectID=$(sqlAzureADGroupObjectID) \
                             adLogin=$(sqlAzureADGroupLoginName) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
