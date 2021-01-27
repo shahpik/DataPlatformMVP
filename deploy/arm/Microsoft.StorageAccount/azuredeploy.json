@@ -70,6 +70,12 @@
       "metadata": {
         "description": "Existing subnet name"
       }
+    },
+    "tenantId": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Tenant ID"
+      }
     }
   },
   "variables": {
@@ -109,6 +115,24 @@
               "id": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]",
               "action": "Allow",
               "state": "Succeeded"
+            }
+          ],
+          "resourceAccessRules": [
+            {
+              "tenantId": "[parameters('tenantId')]",
+              "resourceId": "/subscriptions/*/resourceGroups/*/providers/Microsoft.DataFactory/factories/*"
+            },
+            {
+              "tenantId": "[parameters('tenantId')]",
+              "resourceId": "/subscriptions/*/resourceGroups/*/providers/Microsoft.MachineLearningServices/workspaces/*"
+            },
+            {
+              "tenantId": "[parameters('tenantId')]",
+              "resourceId": "/subscriptions/*/resourceGroups/*/providers/Microsoft.Sql/servers/*"
+            },
+            {
+              "tenantId": "[parameters('tenantId')]",
+              "resourceId": "/subscriptions/*/resourceGroups/*/providers/Microsoft.StreamAnalytics/streamingjobs/*"
             }
           ],
           "defaultAction": "Deny"

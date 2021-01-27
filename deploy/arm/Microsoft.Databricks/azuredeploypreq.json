@@ -53,11 +53,18 @@
         "description": "Private Databricks Subnet NSG"
       }
     },
+    "routeTable": {
+      "type": "string",
+      "metadata": {
+        "description": "Route table to associate the subnet with"
+      }
+    },
     "resourceTags": {
       "type": "object"
     }
   },
   "variables": {
+    "routeId": "[parameters('routeTable')]"
   },
   "resources": [
     {
@@ -70,6 +77,49 @@
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPublicSubNetNSGName'))]"
         },
+        "routeTable": {
+          "id": "[variables('routeId')]"
+        },
+        "serviceEndpoints": [
+          {
+            "service": "Microsoft.Sql",
+            "locations": [
+              "australiaeast",
+              "australiasoutheast"
+            ]
+          },
+          {
+            "service": "Microsoft.Storage",
+            "locations": [
+              "australiaeast",
+              "australiasoutheast"
+            ]
+          },
+          {
+            "service": "Microsoft.CognitiveServices",
+            "locations": [
+              "*"
+            ]
+          },
+          {
+            "service": "Microsoft.EventHub",
+            "locations": [
+              "*"
+            ]
+          },
+          {
+            "service": "Microsoft.KeyVault",
+            "locations": [
+              "*"
+            ]
+          },
+          {
+            "service": "Microsoft.AzureActiveDirectory",
+            "locations": [
+              "*"
+            ]
+          }
+        ],
         "delegations": [
           {
             "name": "databricks-del-private",
@@ -93,6 +143,49 @@
         "addressPrefix": "[parameters('customPrivateSubNetAddressPrefixes')]",
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('customPrivateSubNetNSGName'))]"
+        },
+        "serviceEndpoints": [
+          {
+            "service": "Microsoft.Sql",
+            "locations": [
+              "australiaeast",
+              "australiasoutheast"
+            ]
+          },
+          {
+            "service": "Microsoft.Storage",
+            "locations": [
+              "australiaeast",
+              "australiasoutheast"
+            ]
+          },
+          {
+            "service": "Microsoft.CognitiveServices",
+            "locations": [
+              "*"
+            ]
+          },
+          {
+            "service": "Microsoft.EventHub",
+            "locations": [
+              "*"
+            ]
+          },
+          {
+            "service": "Microsoft.KeyVault",
+            "locations": [
+              "*"
+            ]
+          },
+          {
+            "service": "Microsoft.AzureActiveDirectory",
+            "locations": [
+              "*"
+            ]
+          }
+        ],
+        "routeTable": {
+          "id": "[variables('routeId')]"
         },
         "delegations": [
           {

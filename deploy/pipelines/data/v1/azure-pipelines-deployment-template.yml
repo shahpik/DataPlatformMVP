@@ -37,7 +37,8 @@ jobs:
                           --resource-group $(cobVnetExistingRG) \
                           --name $(ServiceEndPointSubNetName) \
                           --address-prefix $(ServiceEndPointSubNetAddressPrefix) \
-                          --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault
+                          --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault \
+                          --route-table $(routeTableName)
 
 
 
@@ -62,7 +63,8 @@ jobs:
                             resourceTags=@${{parameters.resourceTagsFilePath}} \
                             vnetName=$(cobVnetExisting) \
                             vnetResourceGroupName=$(cobVnetExistingRG) \
-                            subnetName=$(ServiceEndPointSubNetName)
+                            subnetName=$(ServiceEndPointSubNetName) \
+                            tenantId=$(TenantID)
 
 
             - task: AzureCLI@2
@@ -125,6 +127,44 @@ jobs:
                             vnetResourceGroupName=$(cobVnetExistingRG) \
                             subnetName=$(ServiceEndPointSubNetName)
 
+            - task: AzureCLI@2
+              displayName: 'Create Databricks'
+              inputs:
+                      azureSubscription: '${{ parameters.azureServiceConnection }}'
+                      scriptType: 'bash'
+                      scriptLocation: 'inlineScript'
+                      errorActionPreference: stop
+                      inlineScript: |
+                        echo "Creating Prerequisites for Databricks workspace '$(databricksWorkspaceName)'"
+                        echo "Provisioning subnets in existing VNET $(cobVnetExisting)"
+                        az deployment group create \
+                          --resource-group "$(cobVnetExistingRG)" \
+                          --name "DatabricksPrerequisites" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploypreq.json" \
+                          --parameters \
+                                existingVnetName=$(cobVnetExisting) \
+                                customPublicSubnetName=$(databricksPublicSubNet) \
+                                customPublicSubNetAddressPrefixes=$(databricksPublicSubNetAddressPrefixes) \
+                                customPublicSubNetNSGName=$(databricksPublicNSGName) \
+                                customPrivateSubnetName=$(databricksPrivateSubNet) \
+                                customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
+                                customPrivateSubNetNSGName=$(databricksPrivateNSGName) \
+                                routeTable=$(routeTableResourceId) \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
+
+                        echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
+                        az deployment group create \
+                          --resource-group "$(resourceGroup)" \
+                          --name "Databricks" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
+                          --parameters \
+                                workspaceName=$(databricksWorkspaceName) \
+                                customVirtualNetworkId=$(cobVnetExistingResourceId) \
+                                customPublicSubnetName=$(databricksPublicSubNet) \
+                                customPrivateSubnetName=$(databricksPrivateSubNet) \
+                                managedResourceGroupName=$(databricksManagedResourceGroup) \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
+
 
             - task: AzureCLI@2
               displayName: Create SQL Server
@@ -145,7 +185,7 @@ jobs:
                             sqlAdministratorLogin=$(sqlServerAdminUserName) \
                             sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
                             location=$(region) \
-                            adTenantID=$(sqlAzureADGroupTenantID) \
+                            adTenantID=$(tenantID) \
                             adObjectID=$(sqlAzureADGroupObjectID) \
                             adLogin=$(sqlAzureADGroupLoginName) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
@@ -153,45 +193,10 @@ jobs:
                             vnetName=$(cobVnetExisting) \
                             vnetResourceGroupName=$(cobVnetExistingRG) \
                             sqlSubnetName=$(ServiceEndPointSubNetName) \
-                            irSubnetName=$(IRServiceEndpointSubnetName)
+                            irSubnetName=$(IRServiceEndpointSubnetName) \
+                            dbrPrivSubnetName=$(databricksPrivateSubNet) \
+                            dbrPubSubnetName=$(databricksPublicSubNet)
 
-
-            - task: AzureCLI@2
-              displayName: 'Create Databricks'
-              inputs:
-                      azureSubscription: '${{ parameters.azureServiceConnection }}'
-                      scriptType: 'bash'
-                      scriptLocation: 'inlineScript'
-                      errorActionPreference: continue
-                      inlineScript: |
-                        echo "Creating Prerequisites for Databricks workspace '$(databricksWorkspaceName)'"
-                        echo "Provisioning subnets in existing VNET $(cobVnetExisting)"
-                        az deployment group create \
-                          --resource-group "$(cobVnetExistingRG)" \
-                          --name "DatabricksPrerequisites" \
-                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploypreq.json" \
-                          --parameters \
-                                existingVnetName=$(cobVnetExisting) \
-                                customPublicSubnetName=$(databricksPublicSubNet) \
-                                customPublicSubNetAddressPrefixes=$(databricksPublicSubNetAddressPrefixes) \
-                                customPublicSubNetNSGName=$(databricksPublicNSGName) \
-                                customPrivateSubnetName=$(databricksPrivateSubNet) \
-                                customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
-                                customPrivateSubNetNSGName=$(databricksPrivateNSGName) \
-                                resourceTags=@${{parameters.resourceTagsFilePath}}
-
-                        echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
-                        az deployment group create \
-                          --resource-group "$(resourceGroup)" \
-                          --name "Databricks" \
-                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
-                          --parameters \
-                                workspaceName=$(databricksWorkspaceName) \
-                                customVirtualNetworkId=$(cobVnetExistingResourceId) \
-                                customPublicSubnetName=$(databricksPublicSubNet) \
-                                customPrivateSubnetName=$(databricksPrivateSubNet) \
-                                managedResourceGroupName=$(databricksManagedResourceGroup) \
-                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
             - task: AzureCLI@2
               displayName: Create Machine Learning WS
