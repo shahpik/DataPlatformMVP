@@ -249,7 +249,7 @@
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
           ]
-        }
+        },
         {
           "type": "Microsoft.Sql/servers/virtualNetworkRules",
           "name": "[concat(parameters('sqlServerName'), '/', parameters('dbrPrivVnetRuleName'))]",
@@ -261,7 +261,7 @@
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]"
           ]
-        }
+        },
         {
           "type": "Microsoft.Sql/servers/virtualNetworkRules",
           "name": "[concat(parameters('sqlServerName'), '/', parameters('dbrPubVnetRuleName'))]",
