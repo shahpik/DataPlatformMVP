@@ -118,7 +118,7 @@
     "sqlSubnetName": {
       "type": "string",
       "metadata": {
-        "description": "Existing subnet name of SQL Servrice Endpoint"
+        "description": "Existing subnet name of SQL Service Endpoint"
       }
     },
     "irSubnetName": {
