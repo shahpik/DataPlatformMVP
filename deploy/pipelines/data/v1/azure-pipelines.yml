@@ -16,10 +16,10 @@ stages:
   condition: succeeded()
   dependsOn: Build
   variables:
-  - group: 'rm-data-test-variable-group'
+  - group: 'rm-edp-test-variable-group'
   jobs:
   - template: azure-pipelines-deployment-template.yml
     parameters:
-      azureServiceConnection: '$(AzureServiceConnection_TC)'
+      azureServiceConnection: '$(AzureServiceConnection_Test)'
       environment: 'Test'
       resourceTagsFilePath: '$(Pipeline.Workspace)/deploy/pipelines/data/v1/resourceTags/env.test.json'
