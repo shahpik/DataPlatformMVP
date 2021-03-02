@@ -8,21 +8,21 @@ jobs:
       runOnce:
         deploy:
           steps:
-            - task: AzureCLI@2
-              displayName: Create Resource Group
-              inputs:
-                azureSubscription: '${{ parameters.azureServiceConnection }}'
-                scriptType: bash
-                scriptLocation: inlineScript
-                inlineScript: |
-                  echo "Creating Resource Group"
-                  az deployment sub create \
-                    --location $(Region) \
-                    --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.ResourceGroups/azuredeploy.json" \
-                    --parameters \
-                        resourceGroupName=$(ResourceGroup) \
-                        resourceGroupLocation=$(Region) \
-                        resourceTags=@${{parameters.resourceTagsFilePath}}
+ #           - task: AzureCLI@2
+ #             displayName: Create Resource Group
+ #             inputs:
+ #               azureSubscription: '${{ parameters.azureServiceConnection }}'
+ #               scriptType: bash
+ #               scriptLocation: inlineScript
+ #               inlineScript: |
+ #                 echo "Creating Resource Group"
+ #                 az deployment sub create \
+ #                   --location $(Region) \
+ #                   --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.ResourceGroups/azuredeploy.json" \
+ #                   --parameters \
+ #                       resourceGroupName=$(ResourceGroup) \
+ #                       resourceGroupLocation=$(Region) \
+ #                       resourceTags=@${{parameters.resourceTagsFilePath}}
 
             - task: AzureCLI@2
               displayName: Create Service Endpoint Subnet
