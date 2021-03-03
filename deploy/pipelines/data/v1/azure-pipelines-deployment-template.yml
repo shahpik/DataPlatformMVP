@@ -84,6 +84,59 @@ jobs:
                             vnetResourceGroupName=$(cobVnetExistingRG) \
                             subnetName=$(ServiceEndPointSubNetName) \
                             tenantId=$(TenantID)
+
+
+            - task: AzureCLI@2
+              displayName: 'Create Databricks'
+              inputs:
+                      azureSubscription: '${{ parameters.azureServiceConnection }}'
+                      scriptType: 'bash'
+                      scriptLocation: 'inlineScript'
+                      errorActionPreference: stop
+                      inlineScript: |
+                        echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
+                        az deployment group create \
+                          --resource-group "$(resourceGroup)" \
+                          --name "Databricks" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
+                          --parameters \
+                                workspaceName=$(databricksWorkspaceName) \
+                                customVirtualNetworkId=$(cobVnetExistingResourceId) \
+                                customPublicSubnetName=$(databricksPublicSubNet) \
+                                customPrivateSubnetName=$(databricksPrivateSubNet) \
+                                managedResourceGroupName=$(databricksManagedResourceGroup) \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
+
+            - task: AzureCLI@2
+              displayName: Create SQL Server
+              inputs:
+                    azureSubscription: '${{ parameters.azureServiceConnection }}'
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    errorActionPreference: continue
+                    inlineScript: |
+                      echo "Creating SQL Server '$(sqlServerName)'"
+                      az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "SQLServer" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
+                        --parameters \
+                            sqlServerName=$(sqlServerName) \
+                            databaseName=$(sqlServerDataBaseName) \
+                            sqlAdministratorLogin=$(sqlServerAdminUserName) \
+                            sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
+                            location=$(region) \
+                            adTenantID=$(tenantID) \
+                            adObjectID=$(sqlAzureADGroupObjectID) \
+                            adLogin=$(sqlAzureADGroupLoginName) \
+                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
+                            resourceTags=@${{parameters.resourceTagsFilePath}} \
+                            vnetName=$(cobVnetExisting) \
+                            vnetResourceGroupName=$(cobVnetExistingRG) \
+                            sqlSubnetName=$(ServiceEndPointSubNetName) \
+                            irSubnetName=$(IRServiceEndpointSubnetName) \
+                            dbrPrivSubnetName=$(databricksPrivateSubNet) \
+                            dbrPubSubnetName=$(databricksPublicSubNet)
                             
 
             - task: AzureCLI@2
@@ -222,58 +275,7 @@ jobs:
                                 logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
 
-            - task: AzureCLI@2
-              displayName: Create SQL Server
-              inputs:
-                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    errorActionPreference: continue
-                    inlineScript: |
-                      echo "Creating SQL Server '$(sqlServerName)'"
-                      az deployment group create \
-                        --resource-group $(resourceGroup) \
-                        --name "SQLServer" \
-                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.SqlServer/azuredeploy.json" \
-                        --parameters \
-                            sqlServerName=$(sqlServerName) \
-                            databaseName=$(sqlServerDataBaseName) \
-                            sqlAdministratorLogin=$(sqlServerAdminUserName) \
-                            sqlAdministratorLoginPassword=$(sqlServerAdminPassword) \
-                            location=$(region) \
-                            adTenantID=$(tenantID) \
-                            adObjectID=$(sqlAzureADGroupObjectID) \
-                            adLogin=$(sqlAzureADGroupLoginName) \
-                            logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
-                            resourceTags=@${{parameters.resourceTagsFilePath}} \
-                            vnetName=$(cobVnetExisting) \
-                            vnetResourceGroupName=$(cobVnetExistingRG) \
-                            sqlSubnetName=$(ServiceEndPointSubNetName) \
-                            irSubnetName=$(IRServiceEndpointSubnetName) \
-                            dbrPrivSubnetName=$(databricksPrivateSubNet) \
-                            dbrPubSubnetName=$(databricksPublicSubNet)
 
-
-            - task: AzureCLI@2
-              displayName: 'Create Databricks'
-              inputs:
-                      azureSubscription: '${{ parameters.azureServiceConnection }}'
-                      scriptType: 'bash'
-                      scriptLocation: 'inlineScript'
-                      errorActionPreference: stop
-                      inlineScript: |
-                        echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
-                        az deployment group create \
-                          --resource-group "$(resourceGroup)" \
-                          --name "Databricks" \
-                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
-                          --parameters \
-                                workspaceName=$(databricksWorkspaceName) \
-                                customVirtualNetworkId=$(cobVnetExistingResourceId) \
-                                customPublicSubnetName=$(databricksPublicSubNet) \
-                                customPrivateSubnetName=$(databricksPrivateSubNet) \
-                                managedResourceGroupName=$(databricksManagedResourceGroup) \
-                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
 #            - task: AzureCLI@2
 #              displayName: 'Create IOT Hub'
