@@ -117,7 +117,7 @@ jobs:
                         --name "KeyVaultML" \
                         --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.KeyVault/azuredeploy.json" \
                         --parameters \
-                            location=australiaeast
+                            location=australiaeast \
                             keyVaultName=$(KeyVaultML) \
                             objectId=$(sqlAzureADGroupObjectID) \
                             logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
