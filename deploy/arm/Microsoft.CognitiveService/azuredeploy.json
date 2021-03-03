@@ -10,7 +10,7 @@
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]",
+      "defaultValue": "australiaeast",
       "metadata": {
         "description": "Location for all resources."
       }

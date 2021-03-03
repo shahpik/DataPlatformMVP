@@ -249,7 +249,6 @@ jobs:
                             --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.CognitiveService/azuredeploy.json" \
                             --parameters \
                                 cognitiveServiceName=$(cognitiveServiceName) \
-                                location=$(Region) \
                                 logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
 
