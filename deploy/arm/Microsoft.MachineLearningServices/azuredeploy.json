@@ -10,6 +10,10 @@
     },
     "location": {
       "type": "string",
+      "defaultValue": "australiaeast",
+      "allowedValues": [
+        "australiaeast"
+      ],
       "metadata": {
         "description": "Specifies the location for all resources."
       }

@@ -143,7 +143,6 @@ jobs:
                           --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.MachineLearningServices/azuredeploy.json" \
                           --parameters \
                               workspaceName=$(mlWorkspaceName) \
-                              location=$(region) \
                               keyVaultNewOrExisting='existing' \
                               keyVaultResourceGroupName=$(resourceGroup) \
                               keyVaultName=$(keyVaultML) \
