@@ -24,23 +24,42 @@ jobs:
  #                       resourceGroupLocation=$(Region) \
  #                       resourceTags=@${{parameters.resourceTagsFilePath}}
 
+ #          - task: AzureCLI@2
+ #             displayName: Create Service Endpoint Subnet
+ #             inputs:
+ #                   azureSubscription: '${{ parameters.azureServiceConnection }}'
+ #                   scriptType: bash
+ #                   scriptLocation: inlineScript
+ #                   inlineScript: |
+ #                       echo "Create Subnet for Service Endpoint"
+ #                       az network vnet subnet create \
+ #                         --vnet-name $(cobVnetExisting) \
+ #                         --resource-group $(cobVnetExistingRG) \
+ #                         --name $(ServiceEndPointSubNetName) \
+ #                         --address-prefix $(ServiceEndPointSubNetAddressPrefix) \
+ #                         --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault \
+ #                         --route-table $(routeTableName)
+
+
+
             - task: AzureCLI@2
-              displayName: Create Service Endpoint Subnet
+              displayName: Create Data Factory
               inputs:
-                    azureSubscription: '${{ parameters.azureServiceConnection }}'
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
-                        echo "Create Subnet for Service Endpoint"
-                        az network vnet subnet create \
-                          --vnet-name $(cobVnetExisting) \
-                          --resource-group $(cobVnetExistingRG) \
-                          --name $(ServiceEndPointSubNetName) \
-                          --address-prefix $(ServiceEndPointSubNetAddressPrefix) \
-                          --service-endpoints Microsoft.Storage Microsoft.Sql Microsoft.EventHub Microsoft.CognitiveServices Microsoft.KeyVault \
-                          --route-table $(routeTableName)
-
-
+                azureSubscription: '${{ parameters.azureServiceConnection }}'
+                scriptType: bash
+                scriptLocation: inlineScript
+                errorActionPreference: stop
+                inlineScript: |
+                  echo "Creating Azure Data Factory '$(dataFactoryName)'"
+                  az deployment group create \
+                        --resource-group $(resourceGroup) \
+                        --name "AzureDataFactory" \
+                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
+                        --parameters \
+                            dataFactoryName=$(dataFactoryName) \
+                            workspaceName=$(logAnalyticsWorkspaceName) \
+                            dataFactoryIRName=$(dataFactoryIntegrationRuntime) \
+                            resourceTags=@${{parameters.resourceTagsFilePath}}      
 
             - task: AzureCLI@2
               displayName: Create Data Lake Store Gen2
@@ -65,26 +84,6 @@ jobs:
                             vnetResourceGroupName=$(cobVnetExistingRG) \
                             subnetName=$(ServiceEndPointSubNetName) \
                             tenantId=$(TenantID)
-
-
-            - task: AzureCLI@2
-              displayName: Create Data Factory
-              inputs:
-                azureSubscription: '${{ parameters.azureServiceConnection }}'
-                scriptType: bash
-                scriptLocation: inlineScript
-                errorActionPreference: stop
-                inlineScript: |
-                  echo "Creating Azure Data Factory '$(dataFactoryName)'"
-                  az deployment group create \
-                        --resource-group $(resourceGroup) \
-                        --name "AzureDataFactory" \
-                        --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.DataFactory/azuredeploy.json" \
-                        --parameters \
-                            dataFactoryName=$(dataFactoryName) \
-                            workspaceName=$(logAnalyticsWorkspaceName) \
-                            dataFactoryIRName=$(dataFactoryIntegrationRuntime) \
-                            resourceTags=@${{parameters.resourceTagsFilePath}}      
                             
 
             - task: AzureCLI@2
@@ -135,23 +134,6 @@ jobs:
                       scriptLocation: 'inlineScript'
                       errorActionPreference: stop
                       inlineScript: |
-                        echo "Creating Prerequisites for Databricks workspace '$(databricksWorkspaceName)'"
-                        echo "Provisioning subnets in existing VNET $(cobVnetExisting)"
-                        az deployment group create \
-                          --resource-group "$(cobVnetExistingRG)" \
-                          --name "DatabricksPrerequisites" \
-                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploypreq.json" \
-                          --parameters \
-                                existingVnetName=$(cobVnetExisting) \
-                                customPublicSubnetName=$(databricksPublicSubNet) \
-                                customPublicSubNetAddressPrefixes=$(databricksPublicSubNetAddressPrefixes) \
-                                customPublicSubNetNSGName=$(databricksPublicNSGName) \
-                                customPrivateSubnetName=$(databricksPrivateSubNet) \
-                                customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
-                                customPrivateSubNetNSGName=$(databricksPrivateNSGName) \
-                                routeTable=$(routeTableResourceId) \
-                                resourceTags=@${{parameters.resourceTagsFilePath}}
-
                         echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
                         az deployment group create \
                           --resource-group "$(resourceGroup)" \
@@ -312,6 +294,23 @@ jobs:
 #                                iotHubName=$(iotHubName) \
 #                                location=$(region) \
 #                                storageAccountName=$(iotHubStorageAccountName)
+
+#                        echo "Creating Prerequisites for Databricks workspace '$(databricksWorkspaceName)'"
+#                        echo "Provisioning subnets in existing VNET $(cobVnetExisting)"
+#                        az deployment group create \
+#                          --resource-group "$(cobVnetExistingRG)" \
+#                          --name "DatabricksPrerequisites" \
+#                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploypreq.json" \
+#                          --parameters \
+#                                existingVnetName=$(cobVnetExisting) \
+#                                customPublicSubnetName=$(databricksPublicSubNet) \
+#                                customPublicSubNetAddressPrefixes=$(databricksPublicSubNetAddressPrefixes) \
+#                                customPublicSubNetNSGName=$(databricksPublicNSGName) \
+#                                customPrivateSubnetName=$(databricksPrivateSubNet) \
+#                                customPrivateSubNetAddressPrefixes=$(databricksPrivateSubNetAddressPrefixes) \
+#                                customPrivateSubNetNSGName=$(databricksPrivateNSGName) \
+#                                routeTable=$(routeTableResourceId) \
+#                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
   
 
