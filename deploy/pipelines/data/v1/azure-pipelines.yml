@@ -12,7 +12,7 @@ stages:
 
 
 - stage: DeployDev
-  displayName: 'Deploy Azure Data Services to Dev Environment'
+  displayName: 'Deploy Dev Environment Azure Data Services'
   condition: succeeded()
   dependsOn: Build
   variables:
@@ -26,9 +26,9 @@ stages:
 
 
 - stage: DeployProd
-  displayName: 'Deploy Azure Data Services to Production Environment'
+  displayName: 'Deploy Production Environment Azure Data Services'
   condition: succeeded()
-  dependsOn: Build
+  dependsOn: DeployDev
   variables:
   - group: 'rm-edp-prod-variable-group'
   jobs:
