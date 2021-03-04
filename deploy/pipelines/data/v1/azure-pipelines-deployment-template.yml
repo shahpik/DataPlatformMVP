@@ -85,26 +85,6 @@ jobs:
                             subnetName=$(ServiceEndPointSubNetName) \
                             tenantId=$(TenantID)
 
-            - task: AzureCLI@2
-              displayName: 'Create Databricks'
-              inputs:
-                      azureSubscription: '${{ parameters.azureServiceConnection }}'
-                      scriptType: 'bash'
-                      scriptLocation: 'inlineScript'
-                      errorActionPreference: stop
-                      inlineScript: |
-                        echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
-                        az deployment group create \
-                          --resource-group "$(resourceGroup)" \
-                          --name "Databricks" \
-                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
-                          --parameters \
-                                workspaceName=$(databricksWorkspaceName) \
-                                customVirtualNetworkId=$(cobVnetExistingResourceId) \
-                                customPublicSubnetName=$(databricksPublicSubNet) \
-                                customPrivateSubnetName=$(databricksPrivateSubNet) \
-                                managedResourceGroupName=$(databricksManagedResourceGroup) \
-                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
             - task: AzureCLI@2
               displayName: Create SQL Server
@@ -137,6 +117,7 @@ jobs:
                             dbrPrivSubnetName=$(databricksPrivateSubNet) \
                             dbrPubSubnetName=$(databricksPublicSubNet)
                             
+
 
             - task: AzureCLI@2
               displayName: Create Key Vaults
@@ -273,7 +254,26 @@ jobs:
                                 logAnalyticsWorkspaceName=$(logAnalyticsWorkspaceName) \
                                 resourceTags=@${{parameters.resourceTagsFilePath}}
 
-
+            - task: AzureCLI@2
+              displayName: 'Create Databricks'
+              inputs:
+                      azureSubscription: '${{ parameters.azureServiceConnection }}'
+                      scriptType: 'bash'
+                      scriptLocation: 'inlineScript'
+                      errorActionPreference: stop
+                      inlineScript: |
+                        echo "Creating Databricks workspace '$(databricksWorkspaceName)'"
+                        az deployment group create \
+                          --resource-group "$(resourceGroup)" \
+                          --name "Databricks" \
+                          --template-file "$(Pipeline.Workspace)/deploy/arm/Microsoft.Databricks/azuredeploy.json" \
+                          --parameters \
+                                workspaceName=$(databricksWorkspaceName) \
+                                customVirtualNetworkId=$(cobVnetExistingResourceId) \
+                                customPublicSubnetName=$(databricksPublicSubNet) \
+                                customPrivateSubnetName=$(databricksPrivateSubNet) \
+                                managedResourceGroupName=$(databricksManagedResourceGroup) \
+                                resourceTags=@${{parameters.resourceTagsFilePath}}
 
 #            - task: AzureCLI@2
 #              displayName: 'Create IOT Hub'

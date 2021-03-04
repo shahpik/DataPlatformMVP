@@ -190,12 +190,14 @@
             "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
             "logs": [
               {
-                "category": "SQLSecurityAuditEvents",
-                "enabled": true,
-                "retentionPolicy": {
-                  "days": 0,
-                  "enabled": false
-                }
+                "category": "SQLInsights",
+                "enabled": true
+              }
+            ],
+            "metrics": [
+              {
+                "category": "Basic",
+                "enabled": true
               }
             ]
           }
