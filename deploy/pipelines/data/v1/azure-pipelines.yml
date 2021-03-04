@@ -11,15 +11,29 @@ stages:
   - template: azure-pipelines-build-template.yml
 
 
-- stage: DeployTest
-  displayName: 'Deploy Azure Data Services to Test environment'
+- stage: DeployDev
+  displayName: 'Deploy Azure Data Services to Dev environment'
   condition: succeeded()
   dependsOn: Build
   variables:
-  - group: 'rm-edp-test-variable-group'
+  - group: 'rm-edp-dev-variable-group'
   jobs:
   - template: azure-pipelines-deployment-template.yml
     parameters:
-      azureServiceConnection: '$(AzureServiceConnection_Test)'
+      azureServiceConnection: '$(AzureServiceConnection_Dev)'
       environment: 'Test'
-      resourceTagsFilePath: '$(Pipeline.Workspace)/deploy/pipelines/data/v1/resourceTags/env.test.json'
+      resourceTagsFilePath: '$(Pipeline.Workspace)/deploy/pipelines/data/v1/resourceTags/env.dev.json'
+
+
+- stage: DeployProd
+  displayName: 'Deploy Azure Data Services to Production environment'
+  condition: succeeded()
+  dependsOn: DeployDev
+  variables:
+  - group: 'rm-edp-prod-variable-group'
+  jobs:
+  - template: azure-pipelines-deployment-template.yml
+    parameters:
+      azureServiceConnection: '$(AzureServiceConnection_Prod)'
+      environment: 'Prod'
+      resourceTagsFilePath: '$(Pipeline.Workspace)/deploy/pipelines/data/v1/resourceTags/env.prod.json'
